@@ -122,7 +122,7 @@ public class SorteoService {
         usuarioRepo.save(usuario);
     }
 
-
+/*
     public byte[] obtenerEntradasSobrantes(String fecha){
 
         Partido partidoFecha = partidoRepo.findByFechaPartido(fecha);
@@ -135,6 +135,8 @@ public class SorteoService {
 
         return Base64.getUrlDecoder().decode(bytesPdf);
     }
+
+ */
 
     public List<Ticket> getEntradasNoAsignadas(String fecha) {
         Partido partidoFecha = partidoRepo.findByFechaPartido(fecha);

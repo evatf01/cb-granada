@@ -29,8 +29,6 @@ public class Usuario {
 
     private boolean is_admin = false;
 
-    private List<String> entrada;
-
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "usuario", cascade = {
             CascadeType.ALL
     })

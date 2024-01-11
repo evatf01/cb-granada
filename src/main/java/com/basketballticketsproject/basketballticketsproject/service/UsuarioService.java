@@ -30,7 +30,7 @@ public class UsuarioService {
     private PasswordEncoder passwordEncoder;
 
     public Usuario getUsuarioByName(String name) {
-        return usuarioRepo.findByName(name);
+        return usuarioRepo.findByNombre(name);
     }
 
     public Usuario getUsuarioByEmail(String email) {

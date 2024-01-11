@@ -63,17 +63,13 @@ public class FileController {
     }
 
 
-//juntar cada pdf en uno?
-
-
+/*
     @GetMapping("/entradasSobrantes/{fecha}")
     public ResponseEntity<byte[]> entradasSobrantes(@PathVariable String fecha, HttpServletResponse response) throws IOException {
         byte[] bytes = sorteoService.obtenerEntradasSobrantes(fecha);
         return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.valueOf("application/pdf")).body(bytes);
 
     }
-
-
-
+*/
 
 }
