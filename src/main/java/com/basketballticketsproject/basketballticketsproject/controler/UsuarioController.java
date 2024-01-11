@@ -1,7 +1,6 @@
 package com.basketballticketsproject.basketballticketsproject.controler;
 
 import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
-import com.basketballticketsproject.basketballticketsproject.service.ResponseMessage;
 import com.basketballticketsproject.basketballticketsproject.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,6 +9,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 
@@ -52,9 +52,9 @@ public class UsuarioController {
 
     //login
     @PostMapping(path = "/login")
-    public ResponseEntity<Usuario> loginEmployee(@RequestBody Usuario usuario)
+    public ResponseEntity<Map<String, String>> loginEmployee(@RequestBody Usuario usuario)
     {
-        final Usuario login = usuarioService.loginEmployee(usuario);
+        final Map<String, String> login = usuarioService.loginEmployee(usuario);
         return ResponseEntity.ok(login);
     }
 

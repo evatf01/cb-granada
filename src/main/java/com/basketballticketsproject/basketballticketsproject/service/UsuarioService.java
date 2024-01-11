@@ -10,9 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class UsuarioService {
@@ -74,7 +72,7 @@ public class UsuarioService {
         usuarioRepo.delete(deleteUser);
     }
 
-    public Usuario loginEmployee(Usuario loginUser) {
+    public Map<String, String> loginEmployee(Usuario loginUser) {
         Usuario user = usuarioRepo.findByEmail(loginUser.getEmail());
         if (user != null) {
             String password = loginUser.getPassword();
@@ -83,7 +81,12 @@ public class UsuarioService {
             if (isPwdRight) {
                 Optional<Usuario> employee = usuarioRepo.findOneByEmailAndPassword(loginUser.getEmail(), encodedPassword);
                 if (employee.isPresent()) {
-                    return employee.get();
+                    Map<String, String> userLogin = new HashMap<>();
+                    userLogin.put("user_id", String.valueOf(employee.get().getUser_id()));
+                    userLogin.put("is_admin", String.valueOf(employee.get().is_admin()));
+                    userLogin.put("user_email", String.valueOf(employee.get().getEmail()));
+                    userLogin.put("user_name", String.valueOf(employee.get().getNombre()));
+                    return userLogin;
                 } else {
                     throw  new ResponseMessage("Login Failed");
                 }
