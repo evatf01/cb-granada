@@ -52,8 +52,7 @@ public class UsuarioController {
 
     //login
     @PostMapping(path = "/login")
-    public ResponseEntity<Usuario> loginEmployee(@RequestBody Usuario usuario)
-    {
+    public ResponseEntity<Usuario> loginEmployee(@RequestBody Usuario usuario) {
         final Usuario login = usuarioService.loginEmployee(usuario);
         return ResponseEntity.ok(login);
     }
@@ -72,7 +71,7 @@ public class UsuarioController {
 
     //modificar un usuario dada su id
     @PutMapping("/modificarUsuario/{id}")
-    public  ResponseEntity<Usuario> usuario (@PathVariable UUID id, @RequestBody Usuario usuarioNuevo){
+    public  ResponseEntity<Usuario> modificarUsuario (@PathVariable UUID id, @RequestBody Usuario usuarioNuevo) {
         final Usuario user = usuarioService.modificarUsuario(id, usuarioNuevo);
         if (ObjectUtils.isEmpty(user)) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

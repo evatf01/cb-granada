@@ -36,7 +36,9 @@ public class PartidoService {
 
 
     public void removePartido (UUID id) {
-        partidoRepo.deleteById(id);
+        final Partido partido = partidoRepo.findById(id).orElseThrow(() ->
+                new IllegalStateException("Employee not exist with id: " + id));
+        partidoRepo.delete(partido);
     }
 
     public List<Ticket> getTickets() {

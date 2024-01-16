@@ -2,7 +2,7 @@ package com.basketballticketsproject.basketballticketsproject.controler;
 
 import com.basketballticketsproject.basketballticketsproject.entity.Ticket;
 import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
-import com.basketballticketsproject.basketballticketsproject.service.SorteoService;
+import com.basketballticketsproject.basketballticketsproject.service.TicketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +19,7 @@ import java.util.UUID;
 public class  SorteoController {
 
     @Autowired
-    private SorteoService sorteoService;
+    private TicketService sorteoService;
 
     //dada la fecha del sorteo, obtener los usuarios de ese partido
     @GetMapping("/getUsuariosSorteo/{partidoId}")

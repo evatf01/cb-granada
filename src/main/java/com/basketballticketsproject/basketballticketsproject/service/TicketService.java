@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-public class SorteoService {
+public class TicketService {
 
     @Autowired
     private UsuarioRepo usuarioRepo;
@@ -27,6 +27,10 @@ public class SorteoService {
     @Autowired
     private TicketRepo ticketRepo;
 
+
+    public List<Ticket> getTickets() {
+        return ticketRepo.findAll();
+    }
 
     public Set<Usuario> getUsuariosSorteo(final UUID idPartido) {
         final Optional<Partido> partido = partidoRepo.findById(idPartido);
@@ -59,9 +63,9 @@ public class SorteoService {
             ticketRepo.save(ticketToSave.get());
 
             return true;
+        } else {
+            throw new ResponseMessage("Ya no quedan entradas disponibles");
         }
-        return false;
-
     }
 
     public void deleteUsuarioFromSorteo(final UUID userID, final UUID partidoId) {
@@ -87,21 +91,24 @@ public class SorteoService {
     public byte[] enviarEntrada(final UUID userID, final UUID partidoId) {
 
        final Usuario usuario = usuarioRepo.findById(userID).orElse(null);
+       final Partido partido = partidoRepo.findById(partidoId).orElse(null);
 
 
         final Set<Usuario> usuariosSorteo = this.getUsuariosSorteo(partidoId);
 
-        byte[] entrada;
+        byte[] entrada = new byte[0];
+
         //para comprobar si el usuario está inscrito al sorteo
         if(usuariosSorteo.contains(usuario) && usuario != null) {
-            Optional<Ticket> ticketToSend = ticketRepo.findByUsuario(usuario);
-            //filtro para obtener las entradas que no estan entregadas y cojo la primera
 
-            if (ticketToSend.isPresent()) {
-                //descodificar base64 
-                entrada = FileStorageService.decodeBase64ToPdf(ticketToSend.get());
-            } else {
-                throw new ResponseMessage("Ya tienes una entrada de este partido o se han acabado las entradas");
+        //obtener la entrada del usuario de ese partido
+            final Optional<Ticket> ticketUsuario = usuario.getTickets().stream().filter(ticket ->
+                    ticket.getPartido().equals(partido)).findFirst();
+
+            if (ticketUsuario.isPresent()) {
+                System.out.println("HOLAAA "+ ticketUsuario.get().getPdfBase64());
+                //descodificar base64 en la entrada
+                entrada = FileStorageService.decodeBase64ToPdf(ticketUsuario.get());
             }
         }
         else {

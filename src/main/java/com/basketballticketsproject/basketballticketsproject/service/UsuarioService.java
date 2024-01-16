@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -54,13 +55,15 @@ public class UsuarioService {
         Usuario deleteUser = usuarioRepo.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Employee not exist with id: " + id));
 
-        Optional<Ticket> ticket = ticketRepo.findByUsuario(deleteUser);
-        if (ticket.isPresent()) {
-            ticket.get().setUsuario(null);
-            ticketRepo.save(ticket.get());
+        Optional<Set<Ticket>> ticketSet = ticketRepo.findByUsuario(deleteUser);
+        if (ticketSet.isPresent()) {
+            for (Ticket entrada : ticketSet.get()) {
+                entrada.setUsuario(null);
+                entrada.setEntregada(false);
+                ticketRepo.save(entrada);
+            }
+            deleteUser.setTickets(null);
         }
-
-        deleteUser.setTickets(null);
         usuarioRepo.delete(deleteUser);
     }
 

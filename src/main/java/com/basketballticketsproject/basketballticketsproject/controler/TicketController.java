@@ -3,7 +3,7 @@ package com.basketballticketsproject.basketballticketsproject.controler;
 import com.basketballticketsproject.basketballticketsproject.dao.Pdf;
 import com.basketballticketsproject.basketballticketsproject.entity.Partido;
 import com.basketballticketsproject.basketballticketsproject.service.FileStorageService;
-import com.basketballticketsproject.basketballticketsproject.service.SorteoService;
+import com.basketballticketsproject.basketballticketsproject.service.TicketService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,17 +21,17 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/cbgranada-api/v1")
 @Slf4j
-public class FileController {
+public class TicketController {
 
     @Autowired
     private FileStorageService fileStorageService;
 
     @Autowired
-    private SorteoService sorteoService;
+    private TicketService sorteoService;
 
     //metodo para añadir un partido con el formulario del front
-    @PostMapping("/uploadFile")
-    public Partido uploadFile(@RequestBody Pdf pdf) throws IOException {
+    @PostMapping("/crearPartidoConEntradas")
+    public UUID uploadFile(@RequestBody Pdf pdf) throws IOException {
         return fileStorageService.storeFile(fileStorageService.getFileBase(pdf.getFile()), pdf.getTituloPartido(), pdf.getFechaPartido());
 
     }
@@ -39,7 +39,7 @@ public class FileController {
 
     //metodo para añadir un partido, junto con su pdf de entradas DESDE POSTMAN
     @PostMapping("/subirPdf/{nombrePartido}/{fechaPartido}")
-    public Partido uploadFile(@RequestParam("file") MultipartFile file, @PathVariable String nombrePartido,
+    public UUID uploadFile(@RequestParam("file") MultipartFile file, @PathVariable String nombrePartido,
                           @PathVariable String fechaPartido) throws IOException {
         final File convFile =  new File(Objects.requireNonNull(file.getOriginalFilename()));
         return  fileStorageService.storeFile(convFile, nombrePartido, fechaPartido);
@@ -47,13 +47,12 @@ public class FileController {
     }
 
     //metodo para obtener una entrada con su nombre
-    @GetMapping("/getFileByName/{fileName}")
-    public ResponseEntity<byte[]> getImage(@PathVariable String fileName) {
-        byte[] imageData = fileStorageService.getFileByNumber(fileName);
+    @GetMapping("/getEntrada/{nombreEntrada}")
+    public ResponseEntity<byte[]> getImage(@PathVariable String nombreEntrada) {
+        byte[] imageData = fileStorageService.getFileByNumber(nombreEntrada);
 
         return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.valueOf("application/pdf")).body(imageData);
     }
-
 
 
     //enviar entrada al usuario

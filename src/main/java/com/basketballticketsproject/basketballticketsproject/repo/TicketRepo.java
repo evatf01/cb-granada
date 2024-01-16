@@ -15,7 +15,7 @@ public interface TicketRepo extends JpaRepository<Ticket, UUID> {
 
     Ticket findByEntrada(String entrada);
 
-    Optional<Ticket>  findByUsuario(Usuario usuario);
+    Optional<Set<Ticket>>  findByUsuario(Usuario usuario);
 
     Set<Ticket> findByPartido(Partido partido);
 

@@ -36,7 +36,7 @@ public class FileStorageService {
     @Autowired
     private UsuarioRepo usuarioRepo;
 
-    public Partido storeFile(final File convFile, final String tituloPartido, final String fechaPartido) throws IOException {
+    public UUID storeFile(final File convFile, final String tituloPartido, final String fechaPartido) throws IOException {
 
         //splittear el pdf en varios
         final PDDocument document = PDDocument.load(convFile);
@@ -53,7 +53,6 @@ public class FileStorageService {
 
         final Set<Ticket> ticketSet = new HashSet<>();
 
-
         //comprobar si no se ha creado ese partido
         final Partido byFechaPartido = partidoRepo.findByFechaPartido(partido.getFechaPartido());
 
@@ -68,8 +67,8 @@ public class FileStorageService {
                 pd.save(baos);
 
                 //encodear el pdf en base64
-                final String base64String = Base64.getEncoder().encodeToString(Arrays.toString(
-                        baos.toByteArray()).getBytes(StandardCharsets.UTF_8));
+                final String base64String = Base64.getEncoder().encodeToString(Arrays.toString(baos.toByteArray())
+                        .getBytes(StandardCharsets.UTF_8));
                 ticket.setPdfBase64(base64String);
                 ticket.setEntrada(String.valueOf(i));
                 ticket.setPartido(partido);
@@ -85,7 +84,7 @@ public class FileStorageService {
         }
         document.close();
 
-        return partido;
+        return partido.getId();
 
     }
 
