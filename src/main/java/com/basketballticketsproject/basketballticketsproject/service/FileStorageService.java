@@ -1,10 +1,8 @@
 package com.basketballticketsproject.basketballticketsproject.service;
 
 import com.basketballticketsproject.basketballticketsproject.entity.Partido;
-import com.basketballticketsproject.basketballticketsproject.entity.Sorteo;
 import com.basketballticketsproject.basketballticketsproject.entity.Ticket;
 import com.basketballticketsproject.basketballticketsproject.repo.PartidoRepo;
-import com.basketballticketsproject.basketballticketsproject.repo.SorteoRepo;
 import com.basketballticketsproject.basketballticketsproject.repo.TicketRepo;
 import com.basketballticketsproject.basketballticketsproject.repo.UsuarioRepo;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +17,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static com.basketballticketsproject.basketballticketsproject.utils.Constants.NOMBRE_PDF_ENTRADAS;
@@ -36,11 +35,8 @@ public class FileStorageService {
 
     @Autowired
     private UsuarioRepo usuarioRepo;
-    @Autowired
-    private SorteoRepo sorteoRepo;
 
-
-    public int storeFile(final File convFile, final String tituloPartido, final String fechaPartido) throws IOException {
+    public Partido storeFile(final File convFile, final String tituloPartido, final String fechaPartido) throws IOException {
 
         //splittear el pdf en varios
         final PDDocument document = PDDocument.load(convFile);
@@ -57,7 +53,6 @@ public class FileStorageService {
 
         final Set<Ticket> ticketSet = new HashSet<>();
 
-        final Sorteo sorteo = new Sorteo();
 
         //comprobar si no se ha creado ese partido
         final Partido byFechaPartido = partidoRepo.findByFechaPartido(partido.getFechaPartido());
@@ -73,11 +68,12 @@ public class FileStorageService {
                 pd.save(baos);
 
                 //encodear el pdf en base64
-                final String base64String = Base64.getEncoder().encodeToString(baos.toByteArray());
+                final String base64String = Base64.getEncoder().encodeToString(Arrays.toString(
+                        baos.toByteArray()).getBytes(StandardCharsets.UTF_8));
                 ticket.setPdfBase64(base64String);
                 ticket.setEntrada(String.valueOf(i));
-                ticketSet.add(ticket);
                 ticket.setPartido(partido);
+                ticketSet.add(ticket);
                 ticketRepo.save(ticket);
 
                 pd.close();
@@ -85,13 +81,11 @@ public class FileStorageService {
             }
             partido.setTickets(ticketSet);
             partidoRepo.save(partido);
-            sorteo.setPartido(partido);
-            sorteoRepo.save(sorteo);
 
         }
         document.close();
 
-        return ticketSet.size();
+        return partido;
 
     }
 
@@ -100,7 +94,7 @@ public class FileStorageService {
     	final File file = new File(NOMBRE_PDF_ENTRADAS);
 		try {
 			FileOutputStream fos = new FileOutputStream(file);
-			String cadenaLimpia = base64.replace(REPLACE_BASE64, StringUtils.EMPTY);
+			final String cadenaLimpia = base64.replace(REPLACE_BASE64, StringUtils.EMPTY);
 			byte[] decoder = Base64.getDecoder().decode(cadenaLimpia);
 			fos.write(decoder);
 			fos.flush();
@@ -112,13 +106,12 @@ public class FileStorageService {
     }
 
     public byte[] getFileByNumber(String fileName) {
-        Ticket byEntrada = ticketRepo.findByEntrada(fileName);
+        final Ticket byEntrada = ticketRepo.findByEntrada(fileName);
         return FileStorageService.decodeBase64ToPdf(byEntrada);
     }
 
     public static byte[] decodeBase64ToPdf(Ticket ticket) {
         return Base64.getDecoder().decode(ticket.getPdfBase64());
-        //fos.write(decoder);
     }
 
 }

@@ -1,9 +1,9 @@
 package com.basketballticketsproject.basketballticketsproject.controler;
 
 import com.basketballticketsproject.basketballticketsproject.dao.Pdf;
+import com.basketballticketsproject.basketballticketsproject.entity.Partido;
 import com.basketballticketsproject.basketballticketsproject.service.FileStorageService;
 import com.basketballticketsproject.basketballticketsproject.service.SorteoService;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,7 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -30,7 +31,7 @@ public class FileController {
 
     //metodo para añadir un partido con el formulario del front
     @PostMapping("/uploadFile")
-    public int uploadFile(@RequestBody Pdf pdf) throws IOException {
+    public Partido uploadFile(@RequestBody Pdf pdf) throws IOException {
         return fileStorageService.storeFile(fileStorageService.getFileBase(pdf.getFile()), pdf.getTituloPartido(), pdf.getFechaPartido());
 
     }
@@ -38,7 +39,7 @@ public class FileController {
 
     //metodo para añadir un partido, junto con su pdf de entradas DESDE POSTMAN
     @PostMapping("/subirPdf/{nombrePartido}/{fechaPartido}")
-    public int uploadFile(@RequestParam("file") MultipartFile file, @PathVariable String nombrePartido,
+    public Partido uploadFile(@RequestParam("file") MultipartFile file, @PathVariable String nombrePartido,
                           @PathVariable String fechaPartido) throws IOException {
         final File convFile =  new File(Objects.requireNonNull(file.getOriginalFilename()));
         return  fileStorageService.storeFile(convFile, nombrePartido, fechaPartido);
@@ -56,24 +57,19 @@ public class FileController {
 
 
     //enviar entrada al usuario
-    @GetMapping("/enviarEntrada/{fecha}/{userID}")
-    public ResponseEntity<byte[]> enviarEntrada(@PathVariable String fecha, @PathVariable UUID userID) {
-        final byte[] entrada = sorteoService.enviarEntrada(fecha, userID);
+    @GetMapping("/enviarEntrada/{userID}/{partidoId}")
+    public ResponseEntity<byte[]> enviarEntrada(@PathVariable UUID userID, @PathVariable UUID partidoId) {
+        final byte[] entrada = sorteoService.enviarEntrada(userID, partidoId);
         return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.valueOf("application/pdf")).body(entrada);
     }
 
 
-//juntar cada pdf en uno?
-
 
     @GetMapping("/entradasSobrantes/{fecha}")
-    public ResponseEntity<byte[]> entradasSobrantes(@PathVariable String fecha, HttpServletResponse response) throws IOException {
+    public ResponseEntity<byte[]> entradasSobrantes(@PathVariable String fecha) throws IOException {
         byte[] bytes = sorteoService.obtenerEntradasSobrantes(fecha);
         return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.valueOf("application/pdf")).body(bytes);
 
     }
-
-
-
 
 }

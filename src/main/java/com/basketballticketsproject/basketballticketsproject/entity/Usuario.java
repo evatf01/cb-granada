@@ -9,10 +9,8 @@ import java.util.*;
 @Entity
 @Getter
 @Setter
-@ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -29,21 +27,9 @@ public class Usuario {
 
     private boolean is_admin = false;
 
-    private List<String> entrada;
-
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "usuario", cascade = {
             CascadeType.ALL
     })
     private Set<Ticket> tickets;
-
-
-    @ManyToMany(fetch = FetchType.EAGER,
-            cascade = {
-                    CascadeType.PERSIST,
-                    CascadeType.MERGE
-            },
-            mappedBy = "usuarios")
-    @JsonIgnore
-    private Set<Sorteo> sorteos = new HashSet<>();
 
 }

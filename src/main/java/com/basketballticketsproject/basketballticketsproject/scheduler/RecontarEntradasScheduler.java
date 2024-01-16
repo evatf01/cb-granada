@@ -31,6 +31,7 @@ public class RecontarEntradasScheduler {
     //@Scheduled(cron = "0 0 12 ? * 4 ")
     public void enviarCorreo() {
         List<Partido> fechasSortAsc = partidoRepo.getFechasSortAsc();
+        /*
         if (!CollectionUtils.isEmpty(fechasSortAsc)) {
             Partido partido = fechasSortAsc.get(0);
             System.out.println(partido.getFechaPartido());
@@ -39,6 +40,8 @@ public class RecontarEntradasScheduler {
 
             });
         }
+
+         */
     }
 
 }
