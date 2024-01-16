@@ -64,12 +64,14 @@ public class FileController {
     }
 
 
-
+/*
     @GetMapping("/entradasSobrantes/{fecha}")
     public ResponseEntity<byte[]> entradasSobrantes(@PathVariable String fecha) throws IOException {
         byte[] bytes = sorteoService.obtenerEntradasSobrantes(fecha);
         return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.valueOf("application/pdf")).body(bytes);
 
     }
+
+ */
 
 }

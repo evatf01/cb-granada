@@ -6,14 +6,11 @@ import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
 import com.basketballticketsproject.basketballticketsproject.repo.PartidoRepo;
 import com.basketballticketsproject.basketballticketsproject.repo.TicketRepo;
 import com.basketballticketsproject.basketballticketsproject.repo.UsuarioRepo;
-import jdk.swing.interop.SwingInterOpUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -115,6 +112,7 @@ public class SorteoService {
     }
 
 
+    /*
     public byte[] obtenerEntradasSobrantes(String fecha){
 
         final Partido partidoFecha = partidoRepo.findByFechaPartido(fecha);
@@ -133,6 +131,8 @@ public class SorteoService {
         bytes =  Base64.getDecoder().decode(entradasString.getBytes(StandardCharsets.UTF_8));
         return bytes;
     }
+
+     */
 
     public List<Ticket> getEntradasNoAsignadas(String fecha) {
         final Partido partidoFecha = partidoRepo.findByFechaPartido(fecha);
