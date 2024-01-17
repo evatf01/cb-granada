@@ -74,10 +74,17 @@ public class PartidoService {
 
     public Set<Partido> getMisPartidos(UUID userID) {
         Optional<Usuario> usuario = usuarioRepo.findById(userID);
+
         final Set<Partido> partidosUsuario = new HashSet<>();
         if (usuario.isPresent()) {
-            Set<Ticket> ticketsUsario = usuario.get().getTickets().stream().filter(Objects::nonNull).collect(Collectors.toSet());
-            ticketsUsario.forEach(ticket -> partidosUsuario.add(ticket.getPartido()));
+            Optional<Set<Ticket>> ticketsUsario = ticketRepo.findByUsuario(usuario.get());
+            if (ticketsUsario.isPresent()) {
+                for(Ticket ticket : ticketsUsario.get()) {
+                    if(ticket.getUsuario().equals(usuario.get())) {
+                        partidosUsuario.add(ticket.getPartido());
+                    }
+                }
+            }
         }
         return partidosUsuario;
     }

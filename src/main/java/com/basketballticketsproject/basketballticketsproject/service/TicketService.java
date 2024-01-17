@@ -102,15 +102,14 @@ public class TicketService {
        final Usuario usuario = usuarioRepo.findById(userID).orElse(null);
        final Partido partido = partidoRepo.findById(partidoId).orElse(null);
 
-        final Optional<Ticket> entradaUsario = ticketRepo.findOneByUsuarioAndPartido(usuario, partido);
         final Set<Usuario> usuariosSorteo = this.getUsuariosSorteo(partidoId);
-
 
         byte[] entrada = new byte[0];
         if(usuariosSorteo.contains(usuario) && usuario != null) {
-            Optional<Ticket> first = usuario.getTickets().stream().findFirst();
-            if (first.isPresent()) {
-                entrada = FileStorageService.decodeBase64ToPdf(first.get().getPdfBase64());
+            final Optional<Ticket> entradaUsario = ticketRepo.findOneByUsuarioAndPartido(usuario, partido);
+            if (entradaUsario.isPresent()) {
+                entrada = FileStorageService.decodeBase64ToPdf(entradaUsario.get().getPdfBase64());
+
             }
         }else {
             throw new ResponseMessage("No estas apuntado a este partido");
