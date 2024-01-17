@@ -7,9 +7,15 @@ import com.basketballticketsproject.basketballticketsproject.repo.TicketRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+
+import static com.basketballticketsproject.basketballticketsproject.utils.Constants.DATE_FORMATTER;
 
 @Service
 public class PartidoService {
@@ -30,8 +36,8 @@ public class PartidoService {
 
 
 
-    public Optional<Partido> getPartidoById(final UUID id) {
-        return partidoRepo.findById(id);
+    public Partido getPartidoById(final UUID id) {
+        return partidoRepo.findById(id).orElse(null);
     }
 
 
@@ -43,5 +49,11 @@ public class PartidoService {
 
     public List<Ticket> getTickets() {
         return ticketRepo.findAll();
+    }
+
+    public Set<Partido> getProximosPartdios() {
+        Set<Partido> fechasSortAsc = partidoRepo.getFechasSortAsc();
+        fechasSortAsc.forEach(System.out::println);
+        return fechasSortAsc;
     }
 }

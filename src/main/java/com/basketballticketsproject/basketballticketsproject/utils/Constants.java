@@ -10,5 +10,7 @@ public class Constants {
 
     public static String REPLACE_BASE64 = "data:application/pdf;base64,";
 
+    public static String DATE_FORMATTER = "yyyy-MM-dd";
+
 
 }

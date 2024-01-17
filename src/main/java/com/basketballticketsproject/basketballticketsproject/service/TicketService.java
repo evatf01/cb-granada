@@ -10,7 +10,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -101,14 +103,13 @@ public class TicketService {
         //para comprobar si el usuario está inscrito al sorteo
         if(usuariosSorteo.contains(usuario) && usuario != null) {
 
-        //obtener la entrada del usuario de ese partido
-            final Optional<Ticket> ticketUsuario = usuario.getTickets().stream().filter(ticket ->
-                    ticket.getPartido().equals(partido)).findFirst();
 
-            if (ticketUsuario.isPresent()) {
-                System.out.println("HOLAAA "+ ticketUsuario.get().getPdfBase64());
+            //obtener la entrada del usuario de ese partido
+            Optional<Ticket> ticketByUsuario = ticketRepo.findOneByUsuarioAndPartido(usuario, partido);
+
+            if (ticketByUsuario.isPresent()) {
                 //descodificar base64 en la entrada
-                entrada = FileStorageService.decodeBase64ToPdf(ticketUsuario.get());
+                entrada = FileStorageService.decodeBase64ToPdf(ticketByUsuario.get());
             }
         }
         else {

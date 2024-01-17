@@ -18,10 +18,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-import static com.basketballticketsproject.basketballticketsproject.utils.Constants.NOMBRE_PDF_ENTRADAS;
-import static com.basketballticketsproject.basketballticketsproject.utils.Constants.REPLACE_BASE64;
+import static com.basketballticketsproject.basketballticketsproject.utils.Constants.*;
 
 @Service
 @Slf4j
@@ -46,6 +49,7 @@ public class FileStorageService {
         final List<PDDocument> pages = splitter.split(document);
 
         final Iterator<PDDocument> iterator = pages.listIterator();
+
 
         final Partido partido = new Partido();
         partido.setNombrePartido(tituloPartido);

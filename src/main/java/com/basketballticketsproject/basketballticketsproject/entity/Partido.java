@@ -3,6 +3,8 @@ package com.basketballticketsproject.basketballticketsproject.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.*;
 
 @Entity
