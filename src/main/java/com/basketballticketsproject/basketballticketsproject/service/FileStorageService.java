@@ -77,8 +77,7 @@ public class FileStorageService {
                 pd.save(baos);
 
                 //encodear el pdf en base64
-                final String base64String = Base64.getEncoder().encodeToString(Arrays.toString(baos.toByteArray())
-                        .getBytes(StandardCharsets.UTF_8));
+                final String base64String = Base64.getEncoder().encodeToString(baos.toByteArray());
                 ticket.setPdfBase64(base64String);
                 ticket.setEntrada(String.valueOf(i));
                 ticket.setPartido(partido);
@@ -121,7 +120,7 @@ public class FileStorageService {
     }
 
     public static byte[] decodeBase64ToPdf(String base64)  {
-        return Base64.getDecoder().decode(base64.getBytes(StandardCharsets.UTF_8));
+        return Base64.getDecoder().decode(base64);
     }
 
 }

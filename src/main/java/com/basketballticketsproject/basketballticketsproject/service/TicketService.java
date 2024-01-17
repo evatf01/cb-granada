@@ -109,7 +109,6 @@ public class TicketService {
             final Optional<Ticket> entradaUsario = ticketRepo.findOneByUsuarioAndPartido(usuario, partido);
             if (entradaUsario.isPresent()) {
                 entrada = FileStorageService.decodeBase64ToPdf(entradaUsario.get().getPdfBase64());
-
             }
         }else {
             throw new ResponseMessage("No estas apuntado a este partido");
