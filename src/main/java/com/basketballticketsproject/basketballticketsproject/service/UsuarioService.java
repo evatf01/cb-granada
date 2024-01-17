@@ -1,25 +1,23 @@
 package com.basketballticketsproject.basketballticketsproject.service;
 
-import com.basketballticketsproject.basketballticketsproject.entity.Sorteo;
 import com.basketballticketsproject.basketballticketsproject.entity.Ticket;
 import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
-import com.basketballticketsproject.basketballticketsproject.repo.SorteoRepo;
 import com.basketballticketsproject.basketballticketsproject.repo.TicketRepo;
 import com.basketballticketsproject.basketballticketsproject.repo.UsuarioRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 @Service
 public class UsuarioService {
 
     @Autowired
     private UsuarioRepo usuarioRepo;
-
-    @Autowired
-    private SorteoRepo sorteoRepo;
 
     @Autowired
     private TicketRepo ticketRepo;
@@ -56,23 +54,20 @@ public class UsuarioService {
     public void borrarUsuario(UUID id) {
         Usuario deleteUser = usuarioRepo.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Employee not exist with id: " + id));
-        List<Sorteo> sorteos = sorteoRepo.findAll();
-        for (Sorteo sorteo : sorteos) {
-            sorteo.getUsuarios().remove(deleteUser);
-        }
 
-        Optional<Ticket> ticket = ticketRepo.findByUsuario(deleteUser);
-        if (ticket.isPresent()) {
-            ticket.get().setUsuario(null);
-            ticketRepo.save(ticket.get());
+        Optional<Set<Ticket>> ticketSet = ticketRepo.findByUsuario(deleteUser);
+        if (ticketSet.isPresent()) {
+            for (Ticket entrada : ticketSet.get()) {
+                entrada.setUsuario(null);
+                entrada.setEntregada(false);
+                ticketRepo.save(entrada);
+            }
+            deleteUser.setTickets(null);
         }
-
-        deleteUser.setTickets(null);
-        sorteoRepo.saveAll(sorteos);
         usuarioRepo.delete(deleteUser);
     }
 
-    public Map<String, String> loginEmployee(Usuario loginUser) {
+    public Usuario loginEmployee(Usuario loginUser) {
         Usuario user = usuarioRepo.findByEmail(loginUser.getEmail());
         if (user != null) {
             String password = loginUser.getPassword();
@@ -81,12 +76,7 @@ public class UsuarioService {
             if (isPwdRight) {
                 Optional<Usuario> employee = usuarioRepo.findOneByEmailAndPassword(loginUser.getEmail(), encodedPassword);
                 if (employee.isPresent()) {
-                    Map<String, String> userLogin = new HashMap<>();
-                    userLogin.put("user_id", String.valueOf(employee.get().getUser_id()));
-                    userLogin.put("is_admin", String.valueOf(employee.get().is_admin()));
-                    userLogin.put("user_email", String.valueOf(employee.get().getEmail()));
-                    userLogin.put("user_name", String.valueOf(employee.get().getNombre()));
-                    return userLogin;
+                    return employee.get();
                 } else {
                     throw  new ResponseMessage("Login Failed");
                 }

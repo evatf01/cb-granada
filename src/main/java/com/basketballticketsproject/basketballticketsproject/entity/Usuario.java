@@ -1,18 +1,19 @@
 package com.basketballticketsproject.basketballticketsproject.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.util.*;
+import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Getter
 @Setter
-@ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -33,15 +34,5 @@ public class Usuario {
             CascadeType.ALL
     })
     private Set<Ticket> tickets;
-
-
-    @ManyToMany(fetch = FetchType.EAGER,
-            cascade = {
-                    CascadeType.PERSIST,
-                    CascadeType.MERGE
-            },
-            mappedBy = "usuarios")
-    @JsonIgnore
-    private Set<Sorteo> sorteos = new HashSet<>();
 
 }

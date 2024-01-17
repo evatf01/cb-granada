@@ -27,7 +27,6 @@ public class Ticket {
 
     private String entrada;
 
-    private String fecha;
 
     private boolean entregada;
 
@@ -41,4 +40,13 @@ public class Ticket {
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
+    @Override
+    public String toString() {
+        return "Ticket{" +
+                "id=" + id +
+                ", entregada=" + entregada +
+                ", partido=" + partido +
+                ", usuario=" + usuario +
+                '}';
+    }
 }
