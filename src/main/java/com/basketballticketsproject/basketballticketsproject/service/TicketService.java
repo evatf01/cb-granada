@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
 import java.io.UnsupportedEncodingException;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -52,12 +53,11 @@ public class TicketService {
         final Partido partido = partidoRepo.findById(idPartido).orElse(null);
         final Optional<Ticket> oneByUsuarioAndPartido = ticketRepo.findOneByUsuarioAndPartido(usuario, partido);
 
-        Optional<Ticket> ticketToSave = Optional.empty();
+        Optional<Ticket> ticketToSave;
         if (partido != null  && !ObjectUtils.isEmpty(usuario) && !oneByUsuarioAndPartido.isPresent()) {
             ticketToSave = partido.getTickets().stream().filter(ticket ->
                     !ticket.isEntregada()).findFirst();
             if (ticketToSave.isPresent() ) {
-                System.out.println("holaaaaa");
                 //guardar en la tabla ticket el usuario con la entrada en entregada true
                 ticketToSave.get().setUsuario(usuario);
                 ticketToSave.get().setEntregada(true);
@@ -68,12 +68,12 @@ public class TicketService {
 
                 return true;
             } else {
+                this.setStockEntradasFalse(partido);
                 throw new ResponseMessage("Ya no quedan entradas disponibles");
             }
         } else {
             throw new ResponseMessage("Ya estas apuntado");
         }
-
     }
 
     public void deleteUsuarioFromSorteo(final UUID userID, final UUID partidoId) {
@@ -97,7 +97,7 @@ public class TicketService {
         }
     }
 
-    public byte[] enviarEntrada(final UUID userID, final UUID partidoId) throws UnsupportedEncodingException {
+    public byte[] enviarEntrada(final UUID userID, final UUID partidoId){
 
        final Usuario usuario = usuarioRepo.findById(userID).orElse(null);
        final Partido partido = partidoRepo.findById(partidoId).orElse(null);
@@ -105,10 +105,12 @@ public class TicketService {
         final Optional<Ticket> entradaUsario = ticketRepo.findOneByUsuarioAndPartido(usuario, partido);
         final Set<Usuario> usuariosSorteo = this.getUsuariosSorteo(partidoId);
 
+
         byte[] entrada = new byte[0];
         if(usuariosSorteo.contains(usuario) && usuario != null) {
-            if (entradaUsario.isPresent()) {
-                entrada = fileStorageService.getFileByNumber(entradaUsario.get().getEntrada());
+            Optional<Ticket> first = usuario.getTickets().stream().findFirst();
+            if (first.isPresent()) {
+                entrada = FileStorageService.decodeBase64ToPdf(first.get().getPdfBase64());
             }
         }else {
             throw new ResponseMessage("No estas apuntado a este partido");
@@ -116,30 +118,13 @@ public class TicketService {
         return entrada;
     }
 
-    /*
-    public byte[] obtenerEntradasSobrantes(String fecha){
-
-        final Partido partidoFecha = partidoRepo.findByFechaPartido(fecha);
-        final List<Ticket> ticketStream = partidoFecha.getTickets().stream().filter(partido -> !partido.isEntregada()).toList();
-
-        List<byte[]> bytesEntrada = new ArrayList<>();
-        List<String> entradas = new ArrayList<>();
-        byte[] bytes = new byte[0];
-        System.out.println("num entradas: " + ticketStream.size());
-        for(Ticket ticket : ticketStream) {
-            //bytesPdf =  Base64.getDecoder().decode(ticket.getPdfBase64().getBytes(StandardCharsets.UTF_8));
-            bytesEntrada.add(Base64.getDecoder().decode(ticket.getPdfBase64().getBytes()));
-            entradas.add(ticket.getPdfBase64());
-        }
-        String entradasString = StringUtils.join(entradas, "\n");
-        bytes =  Base64.getDecoder().decode(entradasString.getBytes(StandardCharsets.UTF_8));
-        return bytes;
-    }
-
-     */
-
     public List<Ticket> getEntradasNoAsignadas(String fecha) {
         final Partido partidoFecha = partidoRepo.findByFechaPartido(fecha);
         return  partidoFecha.getTickets().stream().filter(partido -> !partido.isEntregada()).toList();
+    }
+
+    private void setStockEntradasFalse(Partido partido) {
+        partido.setSotckEntradas(false);
+        partidoRepo.save(partido);
     }
 }

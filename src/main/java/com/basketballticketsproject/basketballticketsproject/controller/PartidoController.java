@@ -99,5 +99,14 @@ public class PartidoController {
     }
 
 
+    @GetMapping("/getMisPartidos/{userId}")
+    public  ResponseEntity<Set<Partido>> getMisPartidos(@PathVariable UUID userId) {
+        Set<Partido> partidos = partidoService.getMisPartidos(userId);
+        if (!partidos.isEmpty()) {
+            return new ResponseEntity<>(partidos, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(partidos,HttpStatus.NO_CONTENT);
+    }
+
 
 }

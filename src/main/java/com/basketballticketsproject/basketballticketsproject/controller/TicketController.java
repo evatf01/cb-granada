@@ -18,10 +18,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+
+import static com.basketballticketsproject.basketballticketsproject.utils.Constants.DATE_FORMATTER;
 
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController

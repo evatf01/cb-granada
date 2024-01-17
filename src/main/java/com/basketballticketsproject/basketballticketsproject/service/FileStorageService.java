@@ -16,9 +16,12 @@ import org.springframework.util.ObjectUtils;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
 import java.util.*;
 
 import static com.basketballticketsproject.basketballticketsproject.utils.Constants.*;
@@ -48,14 +51,20 @@ public class FileStorageService {
         final Iterator<PDDocument> iterator = pages.listIterator();
 
 
+        TemporalAccessor temporal = DateTimeFormatter
+                .ofPattern(DATE_FORMATTER)
+                .parse(fechaPartido);
+        String fecha = DateTimeFormatter.ofPattern(DATE_FORMATTER).format(temporal);
+
+
         final Partido partido = new Partido();
         partido.setNombrePartido(tituloPartido);
-        partido.setFechaPartido(fechaPartido);
+        partido.setFechaPartido(fecha);
 
         final Set<Ticket> ticketSet = new HashSet<>();
 
         //comprobar si no se ha creado ese partido
-        final Partido byFechaPartido = partidoRepo.findByFechaPartido(partido.getFechaPartido());
+        final Partido byFechaPartido = partidoRepo.findByFechaPartido(fecha);
 
 
         if (ObjectUtils.isEmpty(byFechaPartido)) {
@@ -105,14 +114,14 @@ public class FileStorageService {
 		return file;
     }
 
-    public  byte[] getFileByNumber(String fileName) throws UnsupportedEncodingException {
+    public  byte[] getFileByNumber(String fileName)  {
         final Ticket byEntrada = ticketRepo.findByEntrada(fileName);
         System.out.println(byEntrada.getPdfBase64());
-        return this.decodeBase64ToPdf(byEntrada);
+        return this.decodeBase64ToPdf(byEntrada.getPdfBase64());
     }
 
-    public  byte[] decodeBase64ToPdf(Ticket ticket) throws UnsupportedEncodingException {
-        return Base64.getDecoder().decode(ticket.getPdfBase64().getBytes("UTF-8"));
+    public static byte[] decodeBase64ToPdf(String base64)  {
+        return Base64.getDecoder().decode(base64.getBytes(StandardCharsets.UTF_8));
     }
 
 }
