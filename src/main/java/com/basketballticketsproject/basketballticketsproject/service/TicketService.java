@@ -10,9 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
-import org.springframework.util.StringUtils;
 
-import java.time.LocalDate;
+import java.io.UnsupportedEncodingException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -28,6 +27,9 @@ public class TicketService {
 
     @Autowired
     private TicketRepo ticketRepo;
+
+    @Autowired
+    private FileStorageService fileStorageService;
 
 
     public List<Ticket> getTickets() {
@@ -48,26 +50,30 @@ public class TicketService {
     public Boolean saveUsuarioSorteo(final UUID idUser, final UUID idPartido) {
         final Usuario usuario = usuarioRepo.findById(idUser).orElse(null);
         final Partido partido = partidoRepo.findById(idPartido).orElse(null);
+        final Optional<Ticket> oneByUsuarioAndPartido = ticketRepo.findOneByUsuarioAndPartido(usuario, partido);
+
         Optional<Ticket> ticketToSave = Optional.empty();
-        if (partido != null) {
+        if (partido != null  && !ObjectUtils.isEmpty(usuario) && !oneByUsuarioAndPartido.isPresent()) {
             ticketToSave = partido.getTickets().stream().filter(ticket ->
                     !ticket.isEntregada()).findFirst();
-        }
-        //busco en la tabla tickets el partido con entregada a false y cojo la primera
+            if (ticketToSave.isPresent() ) {
+                System.out.println("holaaaaa");
+                //guardar en la tabla ticket el usuario con la entrada en entregada true
+                ticketToSave.get().setUsuario(usuario);
+                ticketToSave.get().setEntregada(true);
+                usuario.getTickets().add(ticketToSave.get());
 
-        if (ticketToSave.isPresent() && !ObjectUtils.isEmpty(usuario) ) {
-            System.out.println("holaaaaa");
-            //guardar en la tabla ticket el usuario con la entrada en entregada true
-            ticketToSave.get().setUsuario(usuario);
-            ticketToSave.get().setEntregada(true);
-            usuario.getTickets().add(ticketToSave.get());
-            usuarioRepo.save(usuario);
-            ticketRepo.save(ticketToSave.get());
+                usuarioRepo.save(usuario);
+                ticketRepo.save(ticketToSave.get());
 
-            return true;
+                return true;
+            } else {
+                throw new ResponseMessage("Ya no quedan entradas disponibles");
+            }
         } else {
-            throw new ResponseMessage("Ya no quedan entradas disponibles");
+            throw new ResponseMessage("Ya estas apuntado");
         }
+
     }
 
     public void deleteUsuarioFromSorteo(final UUID userID, final UUID partidoId) {
@@ -75,6 +81,7 @@ public class TicketService {
         final Optional<Partido> partido = partidoRepo.findById(partidoId);
 
         if (usuario.isPresent() && partido.isPresent()) {
+
             //obtener la entrada del usuario para desasignarsela y volverla a poner como entregada a false
             final Optional<Ticket> ticketUsuario = usuario.get().getTickets().stream().filter(ticket ->
                     ticket.getPartido().equals(partido.get())).findFirst();
@@ -90,35 +97,24 @@ public class TicketService {
         }
     }
 
-    public byte[] enviarEntrada(final UUID userID, final UUID partidoId) {
+    public byte[] enviarEntrada(final UUID userID, final UUID partidoId) throws UnsupportedEncodingException {
 
        final Usuario usuario = usuarioRepo.findById(userID).orElse(null);
        final Partido partido = partidoRepo.findById(partidoId).orElse(null);
 
-
+        final Optional<Ticket> entradaUsario = ticketRepo.findOneByUsuarioAndPartido(usuario, partido);
         final Set<Usuario> usuariosSorteo = this.getUsuariosSorteo(partidoId);
 
         byte[] entrada = new byte[0];
-
-        //para comprobar si el usuario está inscrito al sorteo
         if(usuariosSorteo.contains(usuario) && usuario != null) {
-
-
-            //obtener la entrada del usuario de ese partido
-            Optional<Ticket> ticketByUsuario = ticketRepo.findOneByUsuarioAndPartido(usuario, partido);
-
-            if (ticketByUsuario.isPresent()) {
-                //descodificar base64 en la entrada
-                entrada = FileStorageService.decodeBase64ToPdf(ticketByUsuario.get());
+            if (entradaUsario.isPresent()) {
+                entrada = fileStorageService.getFileByNumber(entradaUsario.get().getEntrada());
             }
-        }
-        else {
+        }else {
             throw new ResponseMessage("No estas apuntado a este partido");
         }
-
         return entrada;
     }
-
 
     /*
     public byte[] obtenerEntradasSobrantes(String fecha){

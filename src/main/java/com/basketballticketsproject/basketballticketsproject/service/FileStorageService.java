@@ -13,10 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -108,13 +105,14 @@ public class FileStorageService {
 		return file;
     }
 
-    public byte[] getFileByNumber(String fileName) {
+    public  byte[] getFileByNumber(String fileName) throws UnsupportedEncodingException {
         final Ticket byEntrada = ticketRepo.findByEntrada(fileName);
-        return FileStorageService.decodeBase64ToPdf(byEntrada);
+        System.out.println(byEntrada.getPdfBase64());
+        return this.decodeBase64ToPdf(byEntrada);
     }
 
-    public static byte[] decodeBase64ToPdf(Ticket ticket) {
-        return Base64.getDecoder().decode(ticket.getPdfBase64());
+    public  byte[] decodeBase64ToPdf(Ticket ticket) throws UnsupportedEncodingException {
+        return Base64.getDecoder().decode(ticket.getPdfBase64().getBytes("UTF-8"));
     }
 
 }
