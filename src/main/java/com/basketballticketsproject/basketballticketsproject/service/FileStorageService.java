@@ -52,7 +52,7 @@ public class FileStorageService {
 
 
         final DateTimeFormatter dtf = DateTimeFormatter.ofPattern(DATE_FORMATTER);
-        LocalDate fecha = LocalDate.parse("2005-nov-12",dtf);
+        LocalDate fecha = LocalDate.parse(fechaPartido, dtf);
         final Partido partido = new Partido();
         partido.setNombrePartido(tituloPartido);
         partido.setFechaPartido(fecha);
