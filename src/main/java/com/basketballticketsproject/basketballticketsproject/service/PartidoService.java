@@ -58,18 +58,13 @@ public class PartidoService {
         partidoRepo.delete(partido);
     }
 
-    public List<Ticket> getTickets() {
-        return ticketRepo.findAll();
-    }
-
     public Set<Partido> getProximosPartdios() {
         LocalDate date = LocalDate.now();
         DateTimeFormatter formatters = DateTimeFormatter.ofPattern(DATE_FORMATTER);
         String text = date.format(formatters);
         LocalDate parsedDate = LocalDate.parse(text, formatters);
         Set<Partido> partidosDesdeFechaActual = partidoRepo.findPartidosDesdeFechaActual(parsedDate);
-        partidosDesdeFechaActual.forEach(System.out::println);
-        return partidosDesdeFechaActual;
+        return partidosDesdeFechaActual.stream().filter(Partido::isSotckEntradas).collect(Collectors.toSet());
     }
 
     public Set<Partido> getMisPartidos(UUID userID) {

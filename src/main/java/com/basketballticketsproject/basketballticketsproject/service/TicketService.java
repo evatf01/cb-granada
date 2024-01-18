@@ -11,8 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
-import java.io.UnsupportedEncodingException;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -33,9 +31,7 @@ public class TicketService {
     private FileStorageService fileStorageService;
 
 
-    public List<Ticket> getTickets() {
-        return ticketRepo.findAll();
-    }
+    public List<Ticket> getTickets() {return ticketRepo.findAll();}
 
     public Set<Usuario> getUsuariosSorteo(final UUID idPartido) {
         final Optional<Partido> partido = partidoRepo.findById(idPartido);
@@ -45,7 +41,6 @@ public class TicketService {
         }
         return collect;
     }
-
 
 
     public Boolean saveUsuarioSorteo(final UUID idUser, final UUID idPartido) {
@@ -81,7 +76,6 @@ public class TicketService {
         final Optional<Partido> partido = partidoRepo.findById(partidoId);
 
         if (usuario.isPresent() && partido.isPresent()) {
-
             //obtener la entrada del usuario para desasignarsela y volverla a poner como entregada a false
             final Optional<Ticket> ticketUsuario = usuario.get().getTickets().stream().filter(ticket ->
                     ticket.getPartido().equals(partido.get())).findFirst();
@@ -92,7 +86,6 @@ public class TicketService {
                 ticketUsuario.get().setEntregada(false);
                 ticketRepo.save(ticketUsuario.get());
             }
-
             usuarioRepo.save(usuario.get());
         }
     }

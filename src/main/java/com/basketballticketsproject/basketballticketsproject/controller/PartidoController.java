@@ -53,7 +53,7 @@ public class PartidoController {
     //obtener entradas
     @GetMapping("/getTickets")
     public List<Ticket> getTickets(){
-        return partidoService.getTickets();
+        return ticketService.getTickets();
     }
 
     //obtener un partido en especifico
