@@ -8,9 +8,11 @@ import com.basketballticketsproject.basketballticketsproject.repo.TicketRepo;
 import com.basketballticketsproject.basketballticketsproject.repo.UsuarioRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -64,10 +66,12 @@ public class TicketService {
                 return true;
             } else {
                 this.setStockEntradasFalse(partido);
-                throw new ResponseMessage("Ya no quedan entradas disponibles");
+                log.info("Ya no quedan entradas disponibles");
+                return false;
             }
         } else {
-            throw new ResponseMessage("Ya estas apuntado");
+            log.info("Ya estas apuntado o este partido/usuario no existe");
+            return false;
         }
     }
 
@@ -109,7 +113,7 @@ public class TicketService {
         return entrada;
     }
 
-    public List<Ticket> getEntradasNoAsignadas(String fecha) {
+    public List<Ticket> getEntradasNoAsignadas(LocalDate fecha) {
         final Partido partidoFecha = partidoRepo.findByFechaPartido(fecha);
         return  partidoFecha.getTickets().stream().filter(partido -> !partido.isEntregada()).toList();
     }

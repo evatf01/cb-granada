@@ -13,7 +13,7 @@ public interface PartidoRepo extends JpaRepository<Partido, UUID> {
     @Query(value = "SELECT * FROM partido order by fecha_partido ASC", nativeQuery = true)
     Set<Partido> getFechasSortAsc();
 
-    Partido findByFechaPartido(String fecha);
+    Partido findByFechaPartido(LocalDate fecha);
 
     @Query(value = "SELECT * FROM partido where ?1 < fecha_partido", nativeQuery = true)
     Set<Partido> findPartidosDesdeFechaActual(LocalDate parsedDate);

@@ -81,7 +81,6 @@ public class PartidoController {
     //guardar usurio que se apunte al partido, pasandole su id y la fecha del partido
     @PostMapping("/saveUsuarioPartido/{userID}/{partidoId}")
     public ResponseEntity<Boolean> saveUsuarioSorteo(@PathVariable UUID userID, @PathVariable UUID partidoId) {
-
         if (ticketService.saveUsuarioSorteo(userID, partidoId)) {
             return new ResponseEntity<>(true, HttpStatus.OK);
         }

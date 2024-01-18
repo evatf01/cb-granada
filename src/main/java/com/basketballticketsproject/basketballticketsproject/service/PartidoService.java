@@ -33,11 +33,6 @@ public class PartidoService {
     UsuarioRepo usuarioRepo;
 
     public Partido addPartido(final Partido partido) {
-        TemporalAccessor temporal = DateTimeFormatter
-                .ofPattern(DATE_FORMATTER)
-                .parse(partido.getFechaPartido());
-        String fecha = DateTimeFormatter.ofPattern(DATE_FORMATTER).format(temporal);
-        partido.setFechaPartido(fecha);
         return partidoRepo.save(partido);
     }
 

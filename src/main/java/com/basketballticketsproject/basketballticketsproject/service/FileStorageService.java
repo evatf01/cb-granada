@@ -51,12 +51,8 @@ public class FileStorageService {
         final Iterator<PDDocument> iterator = pages.listIterator();
 
 
-        TemporalAccessor temporal = DateTimeFormatter
-                .ofPattern(DATE_FORMATTER)
-                .parse(fechaPartido);
-        String fecha = DateTimeFormatter.ofPattern(DATE_FORMATTER).format(temporal);
-
-
+        final DateTimeFormatter dtf = DateTimeFormatter.ofPattern(DATE_FORMATTER);
+        LocalDate fecha = LocalDate.parse("2005-nov-12",dtf);
         final Partido partido = new Partido();
         partido.setNombrePartido(tituloPartido);
         partido.setFechaPartido(fecha);

@@ -86,7 +86,7 @@ public class TicketController {
 
 
     @GetMapping("/getEntradasNoAsignadas/{fecha}")
-    public List<Ticket> getEntradasNoAsignadas(@PathVariable String fecha) {
+    public List<Ticket> getEntradasNoAsignadas(@PathVariable LocalDate fecha) {
         return  ticketService.getEntradasNoAsignadas(fecha);
     }
 
