@@ -4,6 +4,7 @@ import com.basketballticketsproject.basketballticketsproject.entity.Ticket;
 import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
 import com.basketballticketsproject.basketballticketsproject.repo.TicketRepo;
 import com.basketballticketsproject.basketballticketsproject.repo.UsuarioRepo;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,10 @@ public class UsuarioService {
     }
 
     public Usuario saveUsuario(final Usuario usuario) {
+        if(StringUtils.isEmpty(usuario.getNombre()) || StringUtils.isEmpty(usuario.getApellidos()) || StringUtils.isEmpty(
+                usuario.getEmail()) || StringUtils.isEmpty(usuario.getPassword())) {
+            throw new ResponseMessage("Inserte todos los datos para el registro");
+        }
         usuario.setPassword(this.passwordEncoder.encode(usuario.getPassword()));
         return usuarioRepo.save(usuario);
     }
@@ -44,7 +49,7 @@ public class UsuarioService {
                 .orElseThrow(() -> new IllegalStateException("Employee not exist with id: " + id));
         updateUser.setEmail(usuarioNuevo.getEmail());
         updateUser.setNombre(usuarioNuevo.getNombre());
-        updateUser.setApellido(usuarioNuevo.getApellido());
+        updateUser.setApellidos(usuarioNuevo.getApellidos());
         return usuarioRepo.save(updateUser);
     }
 
@@ -76,7 +81,7 @@ public class UsuarioService {
                     final Map<String, String> userLogin = new HashMap<>();
                     userLogin.put("userId", String.valueOf(employee.get().getUser_id()));
                     userLogin.put("userName", String.valueOf(employee.get().getNombre()));
-                    userLogin.put("userApellido", String.valueOf(employee.get().getApellido()));
+                    userLogin.put("userApellido", String.valueOf(employee.get().getApellidos()));
                     userLogin.put("userEmail", String.valueOf(employee.get().getEmail()));
                     userLogin.put("isAdmin", String.valueOf(employee.get().is_admin()));
                     return userLogin;
