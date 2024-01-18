@@ -56,20 +56,20 @@ public class TicketController {
 
     }
 
+    //enviar entrada al usuario
+    @GetMapping("/enviarEntrada/{userID}/{partidoId}")
+    public ResponseEntity<byte[]> enviarEntrada(@PathVariable UUID userID, @PathVariable UUID partidoId) throws UnsupportedEncodingException {
+        final byte[] entrada = ticketService.enviarEntrada(userID, partidoId);
+        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.valueOf("application/pdf")).body(entrada);
+    }
+
+
     //metodo para obtener una entrada con su nombre
     @GetMapping("/getEntrada/{nombreEntrada}")
     public ResponseEntity<byte[]> getImage(@PathVariable String nombreEntrada) throws UnsupportedEncodingException {
         byte[] imageData = fileStorageService.getFileByNumber(nombreEntrada);
 
         return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.valueOf("application/pdf")).body(imageData);
-    }
-
-
-    //enviar entrada al usuario
-    @GetMapping("/enviarEntrada/{userID}/{partidoId}")
-    public ResponseEntity<byte[]> enviarEntrada(@PathVariable UUID userID, @PathVariable UUID partidoId) throws UnsupportedEncodingException {
-        final byte[] entrada = ticketService.enviarEntrada(userID, partidoId);
-        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.valueOf("application/pdf")).body(entrada);
     }
 
 
@@ -88,6 +88,11 @@ public class TicketController {
     @GetMapping("/getEntradasNoAsignadas/{fecha}")
     public List<Ticket> getEntradasNoAsignadas(@PathVariable String fecha) {
         return  ticketService.getEntradasNoAsignadas(fecha);
+    }
+
+    @GetMapping("/getTickets")
+    public List<Ticket> getTickets(){
+        return ticketService.getTickets();
     }
 
 

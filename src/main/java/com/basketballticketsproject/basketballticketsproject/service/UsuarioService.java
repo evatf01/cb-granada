@@ -81,7 +81,7 @@ public class UsuarioService {
                     final Map<String, String> userLogin = new HashMap<>();
                     userLogin.put("userId", String.valueOf(employee.get().getUser_id()));
                     userLogin.put("userName", String.valueOf(employee.get().getNombre()));
-                    userLogin.put("userApellido", String.valueOf(employee.get().getApellidos()));
+                    userLogin.put("userApellidos", String.valueOf(employee.get().getApellidos()));
                     userLogin.put("userEmail", String.valueOf(employee.get().getEmail()));
                     userLogin.put("isAdmin", String.valueOf(employee.get().is_admin()));
                     return userLogin;

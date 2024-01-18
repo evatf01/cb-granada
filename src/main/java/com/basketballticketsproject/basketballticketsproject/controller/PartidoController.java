@@ -51,10 +51,7 @@ public class PartidoController {
     }
 
     //obtener entradas
-    @GetMapping("/getTickets")
-    public List<Ticket> getTickets(){
-        return ticketService.getTickets();
-    }
+
 
     //obtener un partido en especifico
     @GetMapping("/getPartido/{partidoId}")
@@ -72,7 +69,7 @@ public class PartidoController {
     }
 
     //dada la fecha del sorteo, obtener los usuarios de ese partido
-    @GetMapping("/getUsuariosSorteo/{partidoId}")
+    @GetMapping("/getUsuariosPartido/{partidoId}")
     public ResponseEntity<Set<Usuario>> getUsuariosSorteo(@PathVariable UUID partidoId) {
         final Set<Usuario> usuarios =  ticketService.getUsuariosSorteo(partidoId);
         if (!usuarios.isEmpty()) {
@@ -82,7 +79,7 @@ public class PartidoController {
     }
 
     //guardar usurio que se apunte al partido, pasandole su id y la fecha del partido
-    @PostMapping("/saveUsuarioSorteo/{userID}/{partidoId}")
+    @PostMapping("/saveUsuarioPartido/{userID}/{partidoId}")
     public ResponseEntity<Boolean> saveUsuarioSorteo(@PathVariable UUID userID, @PathVariable UUID partidoId) {
 
         if (ticketService.saveUsuarioSorteo(userID, partidoId)) {
@@ -93,7 +90,7 @@ public class PartidoController {
 
 
     //quitar del sorteo a la persona que se quiera desinscribirse
-    @DeleteMapping("/deleteUsuarioFromSorteo/{userID}/{partidoId}")
+    @DeleteMapping("/deleteUsuarioFromPartido/{userID}/{partidoId}")
     public void deleteUsuarioFromSorteo(@PathVariable UUID userID, @PathVariable UUID partidoId) {
         ticketService.deleteUsuarioFromSorteo(userID, partidoId);
     }
