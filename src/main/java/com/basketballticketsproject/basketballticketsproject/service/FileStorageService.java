@@ -13,15 +13,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAccessor;
 import java.util.*;
 
 import static com.basketballticketsproject.basketballticketsproject.utils.Constants.*;
@@ -39,8 +37,8 @@ public class FileStorageService {
     @Autowired
     private UsuarioRepo usuarioRepo;
 
-    public UUID storeFile(final File convFile, final String tituloPartido, final String fechaPartido) throws IOException {
-
+    public Long storeFile(final File convFile, final String tituloPartido, final String fechaPartido) throws IOException {
+        log.info("FECHA PARTIDO: " + fechaPartido);
         //splittear el pdf en varios
         final PDDocument document = PDDocument.load(convFile);
 
@@ -52,7 +50,7 @@ public class FileStorageService {
 
 
         final DateTimeFormatter dtf = DateTimeFormatter.ofPattern(DATE_FORMATTER);
-        LocalDate fecha = LocalDate.parse(fechaPartido, dtf);
+        LocalDateTime fecha = LocalDateTime.parse(fechaPartido, dtf);
         final Partido partido = new Partido();
         partido.setNombrePartido(tituloPartido);
         partido.setFechaPartido(fecha);
@@ -112,7 +110,7 @@ public class FileStorageService {
     public  byte[] getFileByNumber(String fileName)  {
         final Ticket byEntrada = ticketRepo.findByEntrada(fileName);
         System.out.println(byEntrada.getPdfBase64());
-        return this.decodeBase64ToPdf(byEntrada.getPdfBase64());
+        return decodeBase64ToPdf(byEntrada.getPdfBase64());
     }
 
     public static byte[] decodeBase64ToPdf(String base64)  {

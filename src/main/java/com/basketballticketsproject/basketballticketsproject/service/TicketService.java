@@ -6,6 +6,7 @@ import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
 import com.basketballticketsproject.basketballticketsproject.repo.PartidoRepo;
 import com.basketballticketsproject.basketballticketsproject.repo.TicketRepo;
 import com.basketballticketsproject.basketballticketsproject.repo.UsuarioRepo;
+import jakarta.mail.Part;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.core.Local;
@@ -35,7 +36,7 @@ public class TicketService {
 
     public List<Ticket> getTickets() {return ticketRepo.findAll();}
 
-    public Set<Usuario> getUsuariosSorteo(final UUID idPartido) {
+    public Set<Usuario> getUsuariosSorteo(final Long idPartido) {
         final Optional<Partido> partido = partidoRepo.findById(idPartido);
         Set<Usuario> collect = new HashSet<>();
         if (partido.isPresent()) {
@@ -45,7 +46,7 @@ public class TicketService {
     }
 
 
-    public Boolean saveUsuarioSorteo(final UUID idUser, final UUID idPartido) {
+    public Boolean saveUsuarioSorteo(final Long idUser, final Long idPartido) {
         final Usuario usuario = usuarioRepo.findById(idUser).orElse(null);
         final Partido partido = partidoRepo.findById(idPartido).orElse(null);
         final Optional<Ticket> oneByUsuarioAndPartido = ticketRepo.findOneByUsuarioAndPartido(usuario, partido);
@@ -75,7 +76,7 @@ public class TicketService {
         }
     }
 
-    public void deleteUsuarioFromSorteo(final UUID userID, final UUID partidoId) {
+    public void deleteUsuarioFromSorteo(final Long userID, final Long partidoId) {
         final Optional<Usuario> usuario = usuarioRepo.findById(userID);
         final Optional<Partido> partido = partidoRepo.findById(partidoId);
 
@@ -94,7 +95,7 @@ public class TicketService {
         }
     }
 
-    public byte[] enviarEntrada(final UUID userID, final UUID partidoId){
+    public byte[] enviarEntrada(final Long userID, final Long partidoId){
 
        final Usuario usuario = usuarioRepo.findById(userID).orElse(null);
        final Partido partido = partidoRepo.findById(partidoId).orElse(null);
@@ -113,13 +114,32 @@ public class TicketService {
         return entrada;
     }
 
-    public List<Ticket> getEntradasNoAsignadas(LocalDate fecha) {
-        final Partido partidoFecha = partidoRepo.findByFechaPartido(fecha);
+    public List<Ticket> getEntradasNoAsignadas(Long id) {
+        final Partido partidoFecha = partidoRepo.findById(id).orElseThrow(() ->
+                new IllegalStateException("El partido con este Id no existe: " + id));
         return  partidoFecha.getTickets().stream().filter(partido -> !partido.isEntregada()).toList();
     }
 
     private void setStockEntradasFalse(Partido partido) {
         partido.setSotckEntradas(false);
         partidoRepo.save(partido);
+    }
+
+    public void borrarTicket(Long id) {
+        Ticket ticket = ticketRepo.findById(id).orElseThrow(() ->
+                new IllegalStateException("El ticket con este Id no existe: " + id));
+        Optional<Usuario> usuario = usuarioRepo.findByTickets(ticket);
+        Optional<Partido> partido = partidoRepo.findByTickets(ticket);
+        if (usuario.isPresent()) {
+            usuario.get().getTickets().remove(ticket);
+            usuarioRepo.save(usuario.get());
+        }
+        if (partido.isPresent()) {
+            partido.get().getTickets().remove(ticket);
+            partidoRepo.save(partido.get());
+        }
+        ticket.setUsuario(null);
+        ticket.setPartido(null);
+        ticketRepo.delete(ticket);
     }
 }

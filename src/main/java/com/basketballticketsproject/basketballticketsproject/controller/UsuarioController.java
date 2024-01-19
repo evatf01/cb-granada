@@ -71,7 +71,7 @@ public class UsuarioController {
 
     //modificar un usuario dada su id
     @PutMapping("/modificarUsuario/{id}")
-    public  ResponseEntity<Usuario> modificarUsuario (@PathVariable UUID id, @RequestBody Usuario usuarioNuevo) {
+    public  ResponseEntity<Usuario> modificarUsuario (@PathVariable Long id, @RequestBody Usuario usuarioNuevo) {
         final Usuario user = usuarioService.modificarUsuario(id, usuarioNuevo);
         if (ObjectUtils.isEmpty(user)) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -82,7 +82,7 @@ public class UsuarioController {
 
     //borrar un usuario dada su id
     @DeleteMapping("/borrarUsuario/{id}")
-    public void borrarUsuario(@PathVariable UUID id) {
+    public void borrarUsuario(@PathVariable Long id) {
         usuarioService.borrarUsuario(id);
     }
 

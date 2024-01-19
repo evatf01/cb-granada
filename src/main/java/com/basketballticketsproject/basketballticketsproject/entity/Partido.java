@@ -2,12 +2,14 @@ package com.basketballticketsproject.basketballticketsproject.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
-import lombok.*;
-import org.springframework.cglib.core.Local;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.LocalDate;
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.Set;
 
 import static com.basketballticketsproject.basketballticketsproject.utils.Constants.DATE_FORMATTER;
 
@@ -19,12 +21,12 @@ import static com.basketballticketsproject.basketballticketsproject.utils.Consta
 public class Partido {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @DateTimeFormat(pattern = DATE_FORMATTER)
     @JsonFormat(shape=JsonFormat.Shape.STRING, pattern = DATE_FORMATTER)
-    private LocalDate fechaPartido;
+    private LocalDateTime fechaPartido;
 
 
     private String nombrePartido;

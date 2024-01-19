@@ -16,8 +16,8 @@ import java.util.UUID;
 @AllArgsConstructor
 public class Usuario {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID user_id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long user_id;
 
     private String nombre;
 

@@ -6,7 +6,7 @@ public class Constants {
 
     public static String REPLACE_BASE64 = "data:application/pdf;base64,";
 
-    public static final String DATE_FORMATTER = "dd/MM/yyyy";
+    public static final String DATE_FORMATTER = "dd-MM-yyyy HH:mm";
 
 
 }

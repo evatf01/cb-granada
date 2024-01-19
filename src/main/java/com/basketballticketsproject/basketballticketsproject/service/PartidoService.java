@@ -6,21 +6,19 @@ import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
 import com.basketballticketsproject.basketballticketsproject.repo.PartidoRepo;
 import com.basketballticketsproject.basketballticketsproject.repo.TicketRepo;
 import com.basketballticketsproject.basketballticketsproject.repo.UsuarioRepo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAccessor;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.basketballticketsproject.basketballticketsproject.utils.Constants.DATE_FORMATTER;
 
 @Service
+@Slf4j
 public class PartidoService {
 
     @Autowired
@@ -42,40 +40,46 @@ public class PartidoService {
 
 
 
-    public Partido getPartidoById(final UUID id) {
+    public Partido getPartidoById(final Long id) {
         return partidoRepo.findById(id).orElse(null);
     }
 
 
-    public void removePartido (UUID id) {
+    public void removePartido (Long id) {
         final Partido partido = partidoRepo.findById(id).orElseThrow(() ->
                 new IllegalStateException("Employee not exist with id: " + id));
+        Optional<Set<Ticket>> ticketsPartido = ticketRepo.findByPartido(partido);
+
+        if (ticketsPartido.isPresent()) {
+            for (Ticket entrada : ticketsPartido.get()) {
+                entrada.setUsuario(null);
+                entrada.setPartido(null);
+                entrada.setEntregada(false);
+                ticketRepo.save(entrada);
+            }
+            partido.setTickets(null);
+        }
+
         partidoRepo.delete(partido);
     }
 
     public Set<Partido> getProximosPartdios() {
-        LocalDate date = LocalDate.now();
+        LocalDateTime date = LocalDateTime.now();
         DateTimeFormatter formatters = DateTimeFormatter.ofPattern(DATE_FORMATTER);
         String text = date.format(formatters);
-        LocalDate parsedDate = LocalDate.parse(text, formatters);
-        Set<Partido> partidosDesdeFechaActual = partidoRepo.findPartidosDesdeFechaActual(parsedDate);
-        return partidosDesdeFechaActual.stream().filter(Partido::isSotckEntradas).collect(Collectors.toSet());
+        LocalDateTime parsedDate = LocalDateTime.parse(text, formatters);
+        return partidoRepo.findPartidosDesdeFechaActual(parsedDate).stream().filter(Partido::isSotckEntradas)
+                .collect(Collectors.toSet());
     }
 
-    public Set<Partido> getMisPartidos(UUID userID) {
+    public Set<Partido> getMisPartidos(Long userID) {
         Optional<Usuario> usuario = usuarioRepo.findById(userID);
-
-        final Set<Partido> partidosUsuario = new HashSet<>();
+       // final Set<Partido> partidosUsuario = new HashSet<>();
+        Set<Partido> partidos = new HashSet<>();
         if (usuario.isPresent()) {
-            Optional<Set<Ticket>> ticketsUsario = ticketRepo.findByUsuario(usuario.get());
-            if (ticketsUsario.isPresent()) {
-                for(Ticket ticket : ticketsUsario.get()) {
-                    if(ticket.getUsuario().equals(usuario.get())) {
-                        partidosUsuario.add(ticket.getPartido());
-                    }
-                }
-            }
+            partidos = usuario.get().getTickets().stream().filter(Objects::nonNull).map(Ticket::getPartido).collect(
+                    Collectors.toSet());
         }
-        return partidosUsuario;
+        return partidos;
     }
 }

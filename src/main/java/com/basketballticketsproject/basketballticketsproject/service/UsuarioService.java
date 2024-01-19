@@ -44,18 +44,18 @@ public class UsuarioService {
         return usuarioRepo.findAll();
     }
 
-    public Usuario modificarUsuario(final UUID id, final Usuario usuarioNuevo) {
+    public Usuario modificarUsuario(final Long id, final Usuario usuarioNuevo) {
         final Usuario updateUser = usuarioRepo.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Employee not exist with id: " + id));
+                .orElseThrow(() -> new IllegalStateException("Usuario no existe con la Id dada: " + id));
         updateUser.setEmail(usuarioNuevo.getEmail());
         updateUser.setNombre(usuarioNuevo.getNombre());
         updateUser.setApellidos(usuarioNuevo.getApellidos());
         return usuarioRepo.save(updateUser);
     }
 
-    public void borrarUsuario(UUID id) {
+    public void borrarUsuario(Long id) {
         Usuario deleteUser = usuarioRepo.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Employee not exist with id: " + id));
+                .orElseThrow(() -> new IllegalStateException("Usuario no existe con la Id dada: " + id));
 
         Optional<Set<Ticket>> ticketSet = ticketRepo.findByUsuario(deleteUser);
         if (ticketSet.isPresent()) {
@@ -86,13 +86,13 @@ public class UsuarioService {
                     userLogin.put("isAdmin", String.valueOf(employee.get().is_admin()));
                     return userLogin;
                 } else {
-                    throw  new ResponseMessage("Login Failed");
+                    throw  new ResponseMessage("Fallo en el login");
                 }
             } else {
-                throw  new ResponseMessage("password Not Match");
+                throw  new ResponseMessage("La contraseña no coincide");
             }
         }else {
-            throw new ResponseMessage("Email not exits");
+            throw new ResponseMessage("El email no existe");
         }
     }
 }

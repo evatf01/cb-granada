@@ -11,9 +11,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-public interface TicketRepo extends JpaRepository<Ticket, UUID> {
+public interface TicketRepo extends JpaRepository<Ticket, Long> {
 
-    Optional<Ticket> findById(UUID id);
+    Optional<Ticket> findById(Long id);
 
     Ticket findByEntrada(String entrada);
 
@@ -22,5 +22,5 @@ public interface TicketRepo extends JpaRepository<Ticket, UUID> {
     Optional<Ticket> findOneByUsuarioAndPartido(Usuario user, Partido partido);
 
 
-
+    Optional<Set<Ticket>> findByPartido(Partido partido);
 }

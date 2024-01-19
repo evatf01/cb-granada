@@ -20,6 +20,7 @@ import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
@@ -39,18 +40,26 @@ public class TicketController {
     @Autowired
     private TicketService ticketService;
 
+
+    //borrar un usuario dada su id
+    @DeleteMapping("/borrarTicket/{id}")
+    public void borrarUsuario(@PathVariable Long id) {
+        ticketService.borrarTicket(id);
+    }
+
+
     //metodo para añadir un partido con el formulario del front
     @PostMapping("/crearPartidoConEntradas")
-    public UUID uploadFile(@RequestBody Pdf pdf) throws IOException, ParseException {
+    public Long uploadFile(@RequestBody Pdf pdf) throws IOException {
         return fileStorageService.storeFile(fileStorageService.getFileBase(pdf.getFile()), pdf.getTituloPartido(), pdf.getFechaPartido());
 
     }
 
 
     //metodo para añadir un partido, junto con su pdf de entradas DESDE POSTMAN
-    @PostMapping("/subirPdf/{nombrePartido}/{fechaPartido}")
-    public UUID uploadFile(@RequestParam("file") MultipartFile file, @PathVariable String nombrePartido,
-                          @PathVariable String fechaPartido) throws IOException, ParseException {
+    @PostMapping("/subirPdf/{nombrePartido}")
+    public Long uploadFile(@RequestParam("file") MultipartFile file, @PathVariable String nombrePartido,
+                          @RequestParam String fechaPartido) throws IOException {
         final File convFile =  new File(Objects.requireNonNull(file.getOriginalFilename()));
         return  fileStorageService.storeFile(convFile, nombrePartido, fechaPartido);
 
@@ -58,7 +67,7 @@ public class TicketController {
 
     //enviar entrada al usuario
     @GetMapping("/enviarEntrada/{userID}/{partidoId}")
-    public ResponseEntity<byte[]> enviarEntrada(@PathVariable UUID userID, @PathVariable UUID partidoId) throws UnsupportedEncodingException {
+    public ResponseEntity<byte[]> enviarEntrada(@PathVariable Long userID, @PathVariable Long partidoId) throws UnsupportedEncodingException {
         final byte[] entrada = ticketService.enviarEntrada(userID, partidoId);
         return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.valueOf("application/pdf")).body(entrada);
     }
@@ -86,8 +95,8 @@ public class TicketController {
 
 
     @GetMapping("/getEntradasNoAsignadas/{fecha}")
-    public List<Ticket> getEntradasNoAsignadas(@PathVariable LocalDate fecha) {
-        return  ticketService.getEntradasNoAsignadas(fecha);
+    public List<Ticket> getEntradasNoAsignadas(@PathVariable Long id) {
+        return  ticketService.getEntradasNoAsignadas(id);
     }
 
     @GetMapping("/getTickets")
