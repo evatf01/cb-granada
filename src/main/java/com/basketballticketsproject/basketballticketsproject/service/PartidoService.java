@@ -52,10 +52,7 @@ public class PartidoService {
 
         if (ticketsPartido.isPresent()) {
             for (Ticket entrada : ticketsPartido.get()) {
-                entrada.setUsuario(null);
-                entrada.setPartido(null);
-                entrada.setEntregada(false);
-                ticketRepo.save(entrada);
+                ticketRepo.delete(entrada);
             }
             partido.setTickets(null);
         }
