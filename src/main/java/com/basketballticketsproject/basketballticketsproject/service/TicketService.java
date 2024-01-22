@@ -51,18 +51,26 @@ public class TicketService {
         final Partido partido = partidoRepo.findById(idPartido).orElse(null);
         final Optional<Ticket> oneByUsuarioAndPartido = ticketRepo.findOneByUsuarioAndPartido(usuario, partido);
 
-        Optional<Ticket> ticketToSave;
+        //Optional<Ticket> ticketToSave;
         if (partido != null  && !ObjectUtils.isEmpty(usuario) && !oneByUsuarioAndPartido.isPresent()) {
+
+            //obtener una entrada que no esté asignada
+            final Optional<Ticket> ticketNoEntregado = ticketRepo.findTicketNoEntregado(idPartido);
+
+            /*
             ticketToSave = partido.getTickets().stream().filter(ticket ->
                     !ticket.isEntregada()).findFirst();
-            if (ticketToSave.isPresent() ) {
+
+             */
+
+            if (ticketNoEntregado.isPresent() ) {
                 //guardar en la tabla ticket el usuario con la entrada en entregada true
-                ticketToSave.get().setUsuario(usuario);
-                ticketToSave.get().setEntregada(true);
-                usuario.getTickets().add(ticketToSave.get());
+                ticketNoEntregado.get().setUsuario(usuario);
+                ticketNoEntregado.get().setEntregada(true);
+                usuario.getTickets().add(ticketNoEntregado.get());
 
                 usuarioRepo.save(usuario);
-                ticketRepo.save(ticketToSave.get());
+                ticketRepo.save(ticketNoEntregado.get());
 
                 return true;
             } else {
@@ -81,11 +89,11 @@ public class TicketService {
         final Optional<Partido> partido = partidoRepo.findById(partidoId);
 
         if (usuario.isPresent() && partido.isPresent()) {
-            //obtener la entrada del usuario para desasignarsela y volverla a poner como entregada a false
+            //obtener la entrada del usuario de ese partido
             final Optional<Ticket> ticketUsuario = usuario.get().getTickets().stream().filter(ticket ->
                     ticket.getPartido().equals(partido.get())).findFirst();
             if (ticketUsuario.isPresent()) {
-                //si el usuario tiene una entrada, se borra y se vuelve a poner entragada a false
+                //se le desasigna la entrada y se vuelve a poner entragada a false
                 usuario.get().getTickets().remove(ticketUsuario.get());
                 ticketUsuario.get().setUsuario(null);
                 ticketUsuario.get().setEntregada(false);
@@ -103,10 +111,14 @@ public class TicketService {
         final Set<Usuario> usuariosSorteo = this.getUsuariosSorteo(partidoId);
 
         byte[] entrada = new byte[0];
+        //comprobar que el usuario está apuntado al partido
         if(usuariosSorteo.contains(usuario) && usuario != null) {
+            ///obtener la entrada de ese usario para ese partido
             final Optional<Ticket> entradaUsario = ticketRepo.findOneByUsuarioAndPartido(usuario, partido);
             if (entradaUsario.isPresent()) {
                 entrada = FileStorageService.decodeBase64ToPdf(entradaUsario.get().getPdfBase64());
+            } else {
+                throw new ResponseMessage("No se encuentra la entrada para este usuario y este partido");
             }
         }else {
             throw new ResponseMessage("No estas apuntado a este partido");
@@ -121,7 +133,7 @@ public class TicketService {
     }
 
     private void setStockEntradasFalse(Partido partido) {
-        partido.setSotckEntradas(false);
+        partido.setStockEntradas(false);
         partidoRepo.save(partido);
     }
 
