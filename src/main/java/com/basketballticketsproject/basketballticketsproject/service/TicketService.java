@@ -121,7 +121,7 @@ public class TicketService {
     }
 
     private void setStockEntradasFalse(Partido partido) {
-        partido.setSotckEntradas(false);
+        partido.setStockEntradas(false);
         partidoRepo.save(partido);
     }
 

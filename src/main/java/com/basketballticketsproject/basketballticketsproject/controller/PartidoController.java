@@ -94,13 +94,20 @@ public class PartidoController {
     }
 
 
-    @GetMapping("/getMisPartidos/{userId}")
-    public  ResponseEntity<Set<Map<String, String>>> getMisPartidos(@PathVariable Long userId) {
-        Set<Map<String, String>> partidos = partidoService.getMisPartidos(userId);
-        if (CollectionUtils.isNotEmpty(partidos)) {
-            return new ResponseEntity<>(partidos, HttpStatus.OK);
+    // @GetMapping("/getMisPartidos/{userId}")
+    // public  ResponseEntity<Set<Map<String, String>>> getMisPartidos(@PathVariable Long userId) {
+    //     Set<Map<String, String>> partidos = partidoService.getMisPartidos(userId);
+    //     if (CollectionUtils.isNotEmpty(partidos)) {
+    //         return new ResponseEntity<>(partidos, HttpStatus.OK);
+    //     }
+    //     return new ResponseEntity<>(partidos,HttpStatus.NO_CONTENT);
+    // }
+    @GetMapping("/getMisPartidosIds/{userId}")
+    public  ResponseEntity<Set<Long>> getMisPartidosIds(@PathVariable Long userId) {
+        Set<Long> partidosIds = partidoService.getMisPartidosIds(userId);
+        if (!partidosIds.isEmpty()) {
+            return new ResponseEntity<>(partidosIds, HttpStatus.OK);
         }
-        return new ResponseEntity<>(partidos,HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(partidosIds,HttpStatus.NO_CONTENT);
     }
-
 }
