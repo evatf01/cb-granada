@@ -32,7 +32,7 @@ public class Partido {
 
     private String nombrePartido;
 
-    private boolean sotckEntradas = true;
+    private boolean stockEntradas = true;
 
     @OneToMany(mappedBy = "partido", cascade = CascadeType.ALL)
     private Set<Ticket> tickets;
