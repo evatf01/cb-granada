@@ -6,12 +6,14 @@ import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
 import com.basketballticketsproject.basketballticketsproject.service.PartidoService;
 import com.basketballticketsproject.basketballticketsproject.service.TicketService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -65,7 +67,7 @@ public class PartidoController {
         return new ResponseEntity<>(partidos,HttpStatus.NO_CONTENT);
     }
 
-    //dada la fecha del sorteo, obtener los usuarios de ese partido
+    //dada la id del partido, obtener los usuarios de ese partido
     @GetMapping("/getUsuariosPartido/{partidoId}")
     public ResponseEntity<Set<Usuario>> getUsuariosSorteo(@PathVariable Long partidoId) {
         final Set<Usuario> usuarios =  ticketService.getUsuariosSorteo(partidoId);
@@ -75,7 +77,7 @@ public class PartidoController {
         return new ResponseEntity<>(usuarios,HttpStatus.NO_CONTENT);
     }
 
-    //guardar usurio que se apunte al partido, pasandole su id y la fecha del partido
+    //guardar usurio que se apunte al partido, pasandole su id y la id del partido
     @PostMapping("/saveUsuarioPartido/{userID}/{partidoId}")
     public ResponseEntity<Boolean> saveUsuarioSorteo(@PathVariable Long userID, @PathVariable Long partidoId) {
         if (ticketService.saveUsuarioSorteo(userID, partidoId)) {
@@ -85,7 +87,7 @@ public class PartidoController {
     }
 
 
-    //quitar del sorteo a la persona que se quiera desinscribirse
+    //quitar del partido a la persona que se quiera desinscribirse
     @DeleteMapping("/deleteUsuarioFromPartido/{userID}/{partidoId}")
     public void deleteUsuarioFromSorteo(@PathVariable Long userID, @PathVariable Long partidoId) {
         ticketService.deleteUsuarioFromSorteo(userID, partidoId);
@@ -93,13 +95,12 @@ public class PartidoController {
 
 
     @GetMapping("/getMisPartidos/{userId}")
-    public  ResponseEntity<Set<Partido>> getMisPartidos(@PathVariable Long userId) {
-        Set<Partido> partidos = partidoService.getMisPartidos(userId);
-        if (!partidos.isEmpty()) {
+    public  ResponseEntity<Set<Map<String, String>>> getMisPartidos(@PathVariable Long userId) {
+        Set<Map<String, String>> partidos = partidoService.getMisPartidos(userId);
+        if (CollectionUtils.isNotEmpty(partidos)) {
             return new ResponseEntity<>(partidos, HttpStatus.OK);
         }
         return new ResponseEntity<>(partidos,HttpStatus.NO_CONTENT);
     }
-
 
 }

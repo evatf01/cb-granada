@@ -65,18 +65,30 @@ public class PartidoService {
         DateTimeFormatter formatters = DateTimeFormatter.ofPattern(DATE_FORMATTER);
         String text = date.format(formatters);
         LocalDateTime parsedDate = LocalDateTime.parse(text, formatters);
-        return partidoRepo.findPartidosDesdeFechaActual(parsedDate).stream().filter(Partido::isSotckEntradas)
+
+        //obtener proximos partidos desde fecha actual de los que hay entradas disponibles
+        return partidoRepo.findPartidosDesdeFechaActual(parsedDate).stream().filter(Partido::isStockEntradas)
                 .collect(Collectors.toSet());
     }
 
-    public Set<Partido> getMisPartidos(Long userID) {
+
+    //obtener los partidos de un usuario
+    public Set<Map<String, String>> getMisPartidos(Long userID) {
+        Set<Map<String, String>> setPartidoMap = new HashSet<>();
         Optional<Usuario> usuario = usuarioRepo.findById(userID);
        // final Set<Partido> partidosUsuario = new HashSet<>();
         Set<Partido> partidos = new HashSet<>();
         if (usuario.isPresent()) {
             partidos = usuario.get().getTickets().stream().filter(Objects::nonNull).map(Ticket::getPartido).collect(
                     Collectors.toSet());
+            for (Partido partido : partidos) {
+                Map<String, String> partidoMap = new HashMap<>();
+                partidoMap.put("partidoId", String.valueOf(partido.getId()));
+                partidoMap.put("partidoNombre", partido.getNombrePartido());
+                partidoMap.put("partidoFecha", String.valueOf(partido.getFechaPartido()));
+                setPartidoMap.add(partidoMap);
+            }
         }
-        return partidos;
+        return setPartidoMap;
     }
 }
