@@ -8,6 +8,7 @@ import com.basketballticketsproject.basketballticketsproject.repo.TicketRepo;
 import com.basketballticketsproject.basketballticketsproject.repo.UsuarioRepo;
 import jakarta.mail.Part;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
@@ -56,13 +57,11 @@ public class TicketService {
 
             //obtener una entrada que no esté asignada
             final Optional<Ticket> ticketNoEntregado = ticketRepo.findTicketNoEntregado(idPartido);
-
             /*
             ticketToSave = partido.getTickets().stream().filter(ticket ->
                     !ticket.isEntregada()).findFirst();
 
              */
-
             if (ticketNoEntregado.isPresent() ) {
                 //guardar en la tabla ticket el usuario con la entrada en entregada true
                 ticketNoEntregado.get().setUsuario(usuario);
@@ -103,27 +102,28 @@ public class TicketService {
         }
     }
 
-    public byte[] enviarEntrada(final Long userID, final Long partidoId){
+    public String enviarEntrada(final Long userID, final Long partidoId){
 
        final Usuario usuario = usuarioRepo.findById(userID).orElse(null);
        final Partido partido = partidoRepo.findById(partidoId).orElse(null);
 
         final Set<Usuario> usuariosSorteo = this.getUsuariosSorteo(partidoId);
 
-        byte[] entrada = new byte[0];
+        byte[] entrada;
+        String pdfBase64 = StringUtils.EMPTY;
         //comprobar que el usuario está apuntado al partido
         if(usuariosSorteo.contains(usuario) && usuario != null) {
             ///obtener la entrada de ese usario para ese partido
             final Optional<Ticket> entradaUsario = ticketRepo.findOneByUsuarioAndPartido(usuario, partido);
             if (entradaUsario.isPresent()) {
-                entrada = FileStorageService.decodeBase64ToPdf(entradaUsario.get().getPdfBase64());
+                pdfBase64 = entradaUsario.get().getPdfBase64();
             } else {
                 throw new ResponseMessage("No se encuentra la entrada para este usuario y este partido");
             }
         }else {
             throw new ResponseMessage("No estas apuntado a este partido");
         }
-        return entrada;
+        return pdfBase64;
     }
 
     public List<Ticket> getEntradasNoAsignadas(Long id) {

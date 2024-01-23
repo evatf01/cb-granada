@@ -7,6 +7,7 @@ import com.basketballticketsproject.basketballticketsproject.service.PartidoServ
 import com.basketballticketsproject.basketballticketsproject.service.TicketService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,7 +47,7 @@ public class PartidoController {
     //obtener todos los partidos
     @GetMapping("/getPartidos")
     public List<Partido> getPartidos(){
-        return partidoService.getPartdios();
+        return partidoService.getPartidos();
     }
 
     //obtener entradas
@@ -54,14 +55,18 @@ public class PartidoController {
 
     //obtener un partido en especifico
     @GetMapping("/getPartido/{partidoId}")
-    public Partido getPartidoById(@PathVariable Long partidoId) {
-        return partidoService.getPartidoById(partidoId);
+    public ResponseEntity<Partido> getPartidoById(@PathVariable Long partidoId) {
+        final Partido partidoById = partidoService.getPartidoById(partidoId);
+        if (ObjectUtils.isNotEmpty(partidoById)) {
+            return new ResponseEntity<>(partidoById, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(partidoById,HttpStatus.NO_CONTENT);
     }
 
     @GetMapping("/getProximosPartidos")
     public  ResponseEntity<Set<Partido>> getProximosPartdios() {
         Set<Partido> partidos = partidoService.getProximosPartdios();
-        if (!partidos.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(partidos)) {
             return new ResponseEntity<>(partidos, HttpStatus.OK);
         }
         return new ResponseEntity<>(partidos,HttpStatus.NO_CONTENT);
@@ -71,7 +76,7 @@ public class PartidoController {
     @GetMapping("/getUsuariosPartido/{partidoId}")
     public ResponseEntity<Set<Usuario>> getUsuariosSorteo(@PathVariable Long partidoId) {
         final Set<Usuario> usuarios =  ticketService.getUsuariosSorteo(partidoId);
-        if (!usuarios.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(usuarios)) {
             return new ResponseEntity<>(usuarios, HttpStatus.OK);
         }
         return new ResponseEntity<>(usuarios,HttpStatus.NO_CONTENT);

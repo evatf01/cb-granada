@@ -38,19 +38,16 @@ public class FileStorageService {
     private UsuarioRepo usuarioRepo;
 
     public Long storeFile(final File convFile, final String tituloPartido, final String fechaPartido) throws IOException {
-        log.info("FECHA PARTIDO: " + fechaPartido);
         //splittear el pdf en varios
         final PDDocument document = PDDocument.load(convFile);
-
         final Splitter splitter = new Splitter();
-
         final List<PDDocument> pages = splitter.split(document);
-
         final Iterator<PDDocument> iterator = pages.listIterator();
 
-
+        //formatear el formato de la fecha
         final DateTimeFormatter dtf = DateTimeFormatter.ofPattern(DATE_FORMATTER);
         LocalDateTime fecha = LocalDateTime.parse(fechaPartido, dtf);
+        //crear partido con el nombre y la fecha
         final Partido partido = new Partido();
         partido.setNombrePartido(tituloPartido);
         partido.setFechaPartido(fecha);
@@ -59,7 +56,6 @@ public class FileStorageService {
 
         //comprobar si no se ha creado ese partido
         final Partido byFechaPartido = partidoRepo.findByFechaPartido(fecha);
-
 
         if (ObjectUtils.isEmpty(byFechaPartido)) {
             //recorrer todas las paginas del pdf
@@ -79,16 +75,13 @@ public class FileStorageService {
                 ticketRepo.save(ticket);
 
                 pd.close();
-
             }
             partido.setTickets(ticketSet);
             partidoRepo.save(partido);
 
         }
         document.close();
-
         return partido.getId();
-
     }
 
 

@@ -34,7 +34,7 @@ public class PartidoService {
         return partidoRepo.save(partido);
     }
 
-    public List<Partido> getPartdios() {
+    public List<Partido> getPartidos() {
         return partidoRepo.findAll();
     }
 
@@ -47,7 +47,7 @@ public class PartidoService {
 
     public void removePartido (Long id) {
         final Partido partido = partidoRepo.findById(id).orElseThrow(() ->
-                new IllegalStateException("Employee not exist with id: " + id));
+                new IllegalStateException("Partido no exite con Id: " + id));
         Optional<Set<Ticket>> ticketsPartido = ticketRepo.findByPartido(partido);
 
         if (ticketsPartido.isPresent()) {
@@ -56,7 +56,6 @@ public class PartidoService {
             }
             partido.setTickets(null);
         }
-
         partidoRepo.delete(partido);
     }
 

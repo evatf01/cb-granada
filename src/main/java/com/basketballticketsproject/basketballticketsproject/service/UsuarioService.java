@@ -6,13 +6,16 @@ import com.basketballticketsproject.basketballticketsproject.repo.TicketRepo;
 import com.basketballticketsproject.basketballticketsproject.repo.UsuarioRepo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Service
-public class UsuarioService {
+public class UsuarioService implements UserDetailsService {
 
     @Autowired
     private UsuarioRepo usuarioRepo;
@@ -46,7 +49,7 @@ public class UsuarioService {
 
     public Usuario modificarUsuario(final Long id, final Usuario usuarioNuevo) {
         final Usuario updateUser = usuarioRepo.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Usuario no existe con la Id dada: " + id));
+                .orElseThrow(() -> new IllegalStateException("Usuario no existe con Id: " + id));
         updateUser.setEmail(usuarioNuevo.getEmail());
         updateUser.setNombre(usuarioNuevo.getNombre());
         updateUser.setApellidos(usuarioNuevo.getApellidos());
@@ -55,7 +58,7 @@ public class UsuarioService {
 
     public void borrarUsuario(Long id) {
         Usuario deleteUser = usuarioRepo.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Usuario no existe con la Id dada: " + id));
+                .orElseThrow(() -> new IllegalStateException("Usuario no existe con Id: " + id));
 
         Optional<Set<Ticket>> ticketSet = ticketRepo.findByUsuario(deleteUser);
         if (ticketSet.isPresent()) {
@@ -78,13 +81,7 @@ public class UsuarioService {
             if (isPwdRight) {
                 Optional<Usuario> employee = usuarioRepo.findOneByEmailAndPassword(loginUser.getEmail(), encodedPassword);
                 if (employee.isPresent()) {
-                    final Map<String, String> userLogin = new HashMap<>();
-                    userLogin.put("userId", String.valueOf(employee.get().getUser_id()));
-                    userLogin.put("userName", String.valueOf(employee.get().getNombre()));
-                    userLogin.put("userApellidos", String.valueOf(employee.get().getApellidos()));
-                    userLogin.put("userEmail", String.valueOf(employee.get().getEmail()));
-                    userLogin.put("isAdmin", String.valueOf(employee.get().is_admin()));
-                    return userLogin;
+                    return setUserLoginMap(employee.get());
                 } else {
                     throw  new ResponseMessage("Fallo en el login");
                 }
@@ -94,5 +91,20 @@ public class UsuarioService {
         }else {
             throw new ResponseMessage("El email no existe");
         }
+    }
+
+    private static Map<String, String> setUserLoginMap(Usuario usuario) {
+        final Map<String, String> userLogin = new HashMap<>();
+        userLogin.put("userId", String.valueOf(usuario.getUser_id()));
+        userLogin.put("userName", String.valueOf(usuario.getNombre()));
+        userLogin.put("userApellidos", String.valueOf(usuario.getApellidos()));
+        userLogin.put("userEmail", String.valueOf(usuario.getEmail()));
+        userLogin.put("isAdmin", String.valueOf(usuario.is_admin()));
+        return userLogin;
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return usuarioRepo.findByNombre(username);
     }
 }

@@ -67,10 +67,10 @@ public class TicketController {
 
     //enviar entrada al usuario
     @GetMapping("/enviarEntrada/{userID}/{partidoId}")
-    public ResponseEntity<byte[]> enviarEntrada(@PathVariable Long userID, @PathVariable Long partidoId) throws UnsupportedEncodingException {
-        final byte[] entrada = ticketService.enviarEntrada(userID, partidoId);
-        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.valueOf("application/pdf")).body(entrada);
-    }
+    public ResponseEntity<String> enviarEntrada(@PathVariable Long userID, @PathVariable Long partidoId) throws UnsupportedEncodingException {
+        final String entrada = ticketService.enviarEntrada(userID, partidoId);
+        return new ResponseEntity<>(entrada, HttpStatus.OK);
+       }
 
 
     //metodo para obtener una entrada con su nombre
