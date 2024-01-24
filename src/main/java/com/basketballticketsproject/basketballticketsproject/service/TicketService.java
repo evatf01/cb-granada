@@ -71,6 +71,10 @@ public class TicketService {
                 usuarioRepo.save(usuario);
                 ticketRepo.save(ticketNoEntregado.get());
 
+                //comprobamos si nos quedamos sin entradas
+                Ticket ticketRestante = ticketRepo.findTicketNoEntregado(idPartido).orElse(null);
+                if(ticketRestante == null)
+                    setStockEntradasFalse(partido);
                 return true;
             } else {
                 this.setStockEntradasFalse(partido);
@@ -97,6 +101,9 @@ public class TicketService {
                 ticketUsuario.get().setUsuario(null);
                 ticketUsuario.get().setEntregada(false);
                 ticketRepo.save(ticketUsuario.get());
+                //en partido nos aseguramos que indica que sigue habiendo entradas
+                partido.get().setStockEntradas(true);
+                partidoRepo.save(partido.get());
             }
             usuarioRepo.save(usuario.get());
         }

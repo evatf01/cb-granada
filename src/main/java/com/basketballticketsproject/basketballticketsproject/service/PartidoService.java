@@ -66,8 +66,9 @@ public class PartidoService {
         LocalDateTime parsedDate = LocalDateTime.parse(text, formatters);
 
         //obtener proximos partidos desde fecha actual de los que hay entradas disponibles
-        return partidoRepo.findPartidosDesdeFechaActual(parsedDate).stream().filter(Partido::isStockEntradas)
-                .collect(Collectors.toSet());
+        // return partidoRepo.findPartidosDesdeFechaActual(parsedDate).stream().filter(Partido::isStockEntradas)
+        //         .collect(Collectors.toSet());
+        return partidoRepo.findPartidosDesdeFechaActual(parsedDate);
     }
 
 
