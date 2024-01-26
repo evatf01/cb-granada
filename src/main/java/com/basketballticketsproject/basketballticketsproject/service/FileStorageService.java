@@ -50,6 +50,8 @@ public class FileStorageService {
         LocalDateTime fechaPubli = null;
         if(!fechaPublicacion.isEmpty()) 
             fechaPubli = LocalDateTime.parse(fechaPublicacion, dtf);
+        else
+            fechaPubli = LocalDateTime.now();;
 
         //crear partido con el nombre y las fechas
         final Partido partido = new Partido();
