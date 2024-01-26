@@ -65,34 +65,21 @@ public class PartidoService {
         String text = date.format(formatters);
         LocalDateTime parsedDate = LocalDateTime.parse(text, formatters);
 
-        //obtener proximos partidos desde fecha actual de los que hay entradas disponibles
-        // return partidoRepo.findPartidosDesdeFechaActual(parsedDate).stream().filter(Partido::isStockEntradas)
-        //         .collect(Collectors.toSet());
         return partidoRepo.findPartidosDesdeFechaActual(parsedDate);
     }
 
 
-    //obtener los partidos de un usuario
-    // public Set<Map<String, String>> getMisPartidos(Long userID) {
-    //     Set<Map<String, String>> setPartidoMap = new HashSet<>();
-    //     Optional<Usuario> usuario = usuarioRepo.findById(userID);
-    //    // final Set<Partido> partidosUsuario = new HashSet<>();
-    //     Set<Partido> partidos = new HashSet<>();
-    //     if (usuario.isPresent()) {
-    //         partidos = usuario.get().getTickets().stream().filter(Objects::nonNull).map(Ticket::getPartido).collect(
-    //                 Collectors.toSet());
-    //         for (Partido partido : partidos) {
-    //             Map<String, String> partidoMap = new HashMap<>();
-    //             partidoMap.put("partidoId", String.valueOf(partido.getId()));
-    //             partidoMap.put("partidoNombre", partido.getNombrePartido());
-    //             partidoMap.put("partidoFecha", String.valueOf(partido.getFechaPartido()));
-    //             setPartidoMap.add(partidoMap);
-    //         }
-    //     }
-    //     return setPartidoMap;
-    // }
+
     public Set<Long> getMisPartidosIds(Long userId) {
         Set<Long> partidosIds = partidoRepo.getMisPartidosIds(userId);
         return partidosIds;
+    }
+
+    public Partido modificarPartido(Long id, Partido partidoNuevo) {
+        final Partido updatePartido = partidoRepo.findById(id)
+                .orElseThrow(() -> new IllegalStateException("Partido no existe con Id: " + id));
+        updatePartido.setNombrePartido(partidoNuevo.getNombrePartido());
+        updatePartido.setFechaPartido(partidoNuevo.getFechaPartido());
+        return partidoRepo.save(updatePartido);
     }
 }

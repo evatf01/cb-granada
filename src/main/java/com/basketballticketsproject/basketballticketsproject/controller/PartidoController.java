@@ -43,6 +43,16 @@ public class PartidoController {
         partidoService.removePartido(id);
     }
 
+    @PutMapping("/modificarPartido/{id}")
+    public  ResponseEntity<Partido> modificarPartido (@PathVariable Long id, @RequestBody Partido usuarioNuevo) {
+        final Partido partido = partidoService.modificarPartido(id, usuarioNuevo);
+        if (ObjectUtils.isEmpty(partido)){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(partido, HttpStatus.OK);
+    }
+
+
 
     //obtener todos los partidos
     @GetMapping("/getPartidos")
