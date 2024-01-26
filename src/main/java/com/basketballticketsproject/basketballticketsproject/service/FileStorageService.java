@@ -37,7 +37,7 @@ public class FileStorageService {
     @Autowired
     private UsuarioRepo usuarioRepo;
 
-    public Long storeFile(final File convFile, final String tituloPartido, final String fechaPartido) throws IOException {
+    public Long storeFile(final File convFile, final String tituloPartido, final String fechaPartido, String fechaPublicacion) throws IOException {
         //splittear el pdf en varios
         final PDDocument document = PDDocument.load(convFile);
         final Splitter splitter = new Splitter();
@@ -47,10 +47,15 @@ public class FileStorageService {
         //formatear el formato de la fecha
         final DateTimeFormatter dtf = DateTimeFormatter.ofPattern(DATE_FORMATTER);
         LocalDateTime fecha = LocalDateTime.parse(fechaPartido, dtf);
-        //crear partido con el nombre y la fecha
+        LocalDateTime fechaPubli = null;
+        if(!fechaPublicacion.isEmpty()) 
+            fechaPubli = LocalDateTime.parse(fechaPublicacion, dtf);
+
+        //crear partido con el nombre y las fechas
         final Partido partido = new Partido();
         partido.setNombrePartido(tituloPartido);
         partido.setFechaPartido(fecha);
+        partido.setFechaPublicacion(fechaPubli);
 
         final Set<Ticket> ticketSet = new HashSet<>();
 

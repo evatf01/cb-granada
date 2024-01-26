@@ -29,6 +29,10 @@ public class Partido {
     @Column(columnDefinition = "TIMESTAMP")
     private LocalDateTime fechaPartido;
 
+    @DateTimeFormat(pattern = DATE_FORMATTER)
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern = DATE_FORMATTER)
+    @Column(columnDefinition = "TIMESTAMP")
+    private LocalDateTime fechaPublicacion;
 
     private String nombrePartido;
 

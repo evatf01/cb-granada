@@ -10,4 +10,5 @@ public class Pdf {
     private String file;
     private String tituloPartido;
     private String fechaPartido;
+    private String fechaPublicacion;
 }
