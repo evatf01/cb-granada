@@ -44,8 +44,8 @@ public class PartidoController {
     }
 
     @PutMapping("/modificarPartido/{id}")
-    public  ResponseEntity<Partido> modificarPartido (@PathVariable Long id, @RequestBody Partido usuarioNuevo) {
-        final Partido partido = partidoService.modificarPartido(id, usuarioNuevo);
+    public  ResponseEntity<Partido> modificarPartido (@PathVariable Long id, @RequestBody Partido partidoNuevo) {
+        final Partido partido = partidoService.modificarPartido(id, partidoNuevo);
         if (ObjectUtils.isEmpty(partido)){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -108,15 +108,6 @@ public class PartidoController {
         ticketService.deleteUsuarioFromSorteo(userID, partidoId);
     }
 
-
-    // @GetMapping("/getMisPartidos/{userId}")
-    // public  ResponseEntity<Set<Map<String, String>>> getMisPartidos(@PathVariable Long userId) {
-    //     Set<Map<String, String>> partidos = partidoService.getMisPartidos(userId);
-    //     if (CollectionUtils.isNotEmpty(partidos)) {
-    //         return new ResponseEntity<>(partidos, HttpStatus.OK);
-    //     }
-    //     return new ResponseEntity<>(partidos,HttpStatus.NO_CONTENT);
-    // }
     @GetMapping("/getMisPartidosIds/{userId}")
     public  ResponseEntity<Set<Long>> getMisPartidosIds(@PathVariable Long userId) {
         Set<Long> partidosIds = partidoService.getMisPartidosIds(userId);

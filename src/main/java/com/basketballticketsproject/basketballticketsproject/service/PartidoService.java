@@ -39,7 +39,6 @@ public class PartidoService {
     }
 
 
-
     public Partido getPartidoById(final Long id) {
         return partidoRepo.findById(id).orElse(null);
     }
@@ -71,8 +70,7 @@ public class PartidoService {
 
 
     public Set<Long> getMisPartidosIds(Long userId) {
-        Set<Long> partidosIds = partidoRepo.getMisPartidosIds(userId);
-        return partidosIds;
+        return partidoRepo.getMisPartidosIds(userId);
     }
 
     public Partido modificarPartido(Long id, Partido partidoNuevo) {
