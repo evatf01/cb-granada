@@ -2,7 +2,6 @@ package com.basketballticketsproject.basketballticketsproject.service;
 
 import com.basketballticketsproject.basketballticketsproject.entity.Partido;
 import com.basketballticketsproject.basketballticketsproject.entity.Ticket;
-import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
 import com.basketballticketsproject.basketballticketsproject.repo.PartidoRepo;
 import com.basketballticketsproject.basketballticketsproject.repo.TicketRepo;
 import com.basketballticketsproject.basketballticketsproject.repo.UsuarioRepo;
@@ -12,8 +11,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import static com.basketballticketsproject.basketballticketsproject.utils.Constants.DATE_FORMATTER;
 
@@ -26,9 +26,6 @@ public class PartidoService {
 
     @Autowired
     TicketRepo ticketRepo;
-
-    @Autowired
-    UsuarioRepo usuarioRepo;
 
     public Partido addPartido(final Partido partido) {
         return partidoRepo.save(partido);
