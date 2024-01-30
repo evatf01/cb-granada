@@ -4,7 +4,6 @@ import com.basketballticketsproject.basketballticketsproject.entity.Partido;
 import com.basketballticketsproject.basketballticketsproject.entity.Ticket;
 import com.basketballticketsproject.basketballticketsproject.repo.PartidoRepo;
 import com.basketballticketsproject.basketballticketsproject.repo.TicketRepo;
-import com.basketballticketsproject.basketballticketsproject.repo.UsuarioRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -73,7 +72,7 @@ public class PartidoService {
     public Partido modificarPartido(Long id, Partido partidoNuevo) {
         final Partido updatePartido = partidoRepo.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Partido no existe con Id: " + id));
-        updatePartido.setNombrePartido(partidoNuevo.getNombrePartido());
+        updatePartido.setEquipoVisitante(partidoNuevo.getEquipoVisitante());
         updatePartido.setFechaPartido(partidoNuevo.getFechaPartido());
         return partidoRepo.save(updatePartido);
     }
