@@ -32,6 +32,14 @@ public class UsuarioController {
         }
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
+    @GetMapping("/userById/{id}")
+    public ResponseEntity<Usuario> getUserById(@PathVariable Long id) {
+        final Usuario user = usuarioService.getUsuarioById(id);
+        if (ObjectUtils.isEmpty(user)) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
 
     //encontrar user por email
     @GetMapping("/userEmail/{email}")
@@ -92,6 +100,15 @@ public class UsuarioController {
     @DeleteMapping("/borrarUsuario/{id}")
     public void borrarUsuario(@PathVariable Long id) {
         usuarioService.borrarUsuario(id);
+    }
+
+    @GetMapping("/checkPasswords/{usuario}/{password}")
+    public ResponseEntity<Boolean> checkPasswords(@PathVariable Usuario usuario, @PathVariable String password) {
+        final boolean check = usuarioService.checkPassword(usuario, password);
+        if (check) {
+            return new ResponseEntity<>(true, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(false, HttpStatus.NO_CONTENT);
     }
 
 
