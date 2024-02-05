@@ -16,7 +16,7 @@ public interface PartidoRepo extends JpaRepository<Partido, Long> {
 
     Partido findByFechaPartido(LocalDateTime fecha);
 
-    @Query(value = "SELECT * FROM partido where ?1 < fecha_partido && ?1 >= fecha_publicacion", nativeQuery = true)
+    @Query(value = "SELECT * FROM partido where ?1 < fecha_partido && ?1 >= fecha_publicacion ORDER BY fecha_partido", nativeQuery = true)
     Set<Partido> findPartidosDesdeFechaActual(LocalDateTime parsedDate);
 
     @Query(value = "SELECT partido_id FROM ticket WHERE usuario_id = ?1", nativeQuery = true)
