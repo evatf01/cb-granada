@@ -34,7 +34,7 @@ public class Partido {
     @Column(columnDefinition = "TIMESTAMP")
     private LocalDateTime fechaPublicacion;
 
-    private String equipoVisitante;
+    private String nombrePartido;
 
     private boolean stockEntradas = true;
 
@@ -46,7 +46,7 @@ public class Partido {
     public String toString() {
         return "Partido{" +
                 "fechaPartido='" + fechaPartido + '\'' +
-                ", equipoVisitante='" + equipoVisitante + '\'' +
+                ", nombrePartido='" + nombrePartido + '\'' +
                 '}';
     }
 }

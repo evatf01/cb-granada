@@ -70,9 +70,8 @@ public class PartidoService {
     }
 
     public Partido modificarPartido(Long id, Partido partidoNuevo) {
-        final Partido updatePartido = partidoRepo.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Partido no existe con Id: " + id));
-        updatePartido.setEquipoVisitante(partidoNuevo.getEquipoVisitante());
+        final Partido updatePartido = partidoRepo.findById(id).orElseThrow(() -> new IllegalStateException("Partido no existe con Id: " + id));
+        updatePartido.setNombrePartido(partidoNuevo.getNombrePartido());
         updatePartido.setFechaPartido(partidoNuevo.getFechaPartido());
         return partidoRepo.save(updatePartido);
     }
