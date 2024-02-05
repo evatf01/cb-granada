@@ -17,7 +17,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -51,11 +50,11 @@ public class FileStorageService {
         if(!fechaPublicacion.isEmpty()) 
             fechaPubli = LocalDateTime.parse(fechaPublicacion, dtf);
         else
-            fechaPubli = LocalDateTime.now();;
+            fechaPubli = LocalDateTime.now();
 
         //crear partido con el nombre y las fechas
         final Partido partido = new Partido();
-        partido.setNombrePartido(tituloPartido);
+        partido.setEquipoVisitante(tituloPartido);
         partido.setFechaPartido(fecha);
         partido.setFechaPublicacion(fechaPubli);
 

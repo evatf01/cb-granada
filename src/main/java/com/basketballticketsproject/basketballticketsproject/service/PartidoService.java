@@ -2,18 +2,17 @@ package com.basketballticketsproject.basketballticketsproject.service;
 
 import com.basketballticketsproject.basketballticketsproject.entity.Partido;
 import com.basketballticketsproject.basketballticketsproject.entity.Ticket;
-import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
 import com.basketballticketsproject.basketballticketsproject.repo.PartidoRepo;
 import com.basketballticketsproject.basketballticketsproject.repo.TicketRepo;
-import com.basketballticketsproject.basketballticketsproject.repo.UsuarioRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import static com.basketballticketsproject.basketballticketsproject.utils.Constants.DATE_FORMATTER;
 
@@ -27,9 +26,6 @@ public class PartidoService {
     @Autowired
     TicketRepo ticketRepo;
 
-    @Autowired
-    UsuarioRepo usuarioRepo;
-
     public Partido addPartido(final Partido partido) {
         return partidoRepo.save(partido);
     }
@@ -37,7 +33,6 @@ public class PartidoService {
     public List<Partido> getPartidos() {
         return partidoRepo.findAll();
     }
-
 
 
     public Partido getPartidoById(final Long id) {
@@ -71,14 +66,13 @@ public class PartidoService {
 
 
     public Set<Long> getMisPartidosIds(Long userId) {
-        Set<Long> partidosIds = partidoRepo.getMisPartidosIds(userId);
-        return partidosIds;
+        return partidoRepo.getMisPartidosIds(userId);
     }
 
     public Partido modificarPartido(Long id, Partido partidoNuevo) {
         final Partido updatePartido = partidoRepo.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Partido no existe con Id: " + id));
-        updatePartido.setNombrePartido(partidoNuevo.getNombrePartido());
+        updatePartido.setEquipoVisitante(partidoNuevo.getEquipoVisitante());
         updatePartido.setFechaPartido(partidoNuevo.getFechaPartido());
         return partidoRepo.save(updatePartido);
     }

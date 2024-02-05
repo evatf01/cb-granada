@@ -4,14 +4,20 @@ import com.basketballticketsproject.basketballticketsproject.entity.Ticket;
 import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
 import com.basketballticketsproject.basketballticketsproject.repo.TicketRepo;
 import com.basketballticketsproject.basketballticketsproject.repo.UsuarioRepo;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.regex.Pattern;
+
+import static com.basketballticketsproject.basketballticketsproject.utils.Constants.PASSWORD_REGEX;
 
 @Service
+@Slf4j
 public class UsuarioService {
 
     @Autowired
@@ -23,11 +29,13 @@ public class UsuarioService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    private static final Pattern PASSWORD_PATTERN = Pattern.compile(PASSWORD_REGEX);
+
     public Usuario getUsuarioByName(String name) {
         return usuarioRepo.findByNombre(name);
     }
 
-    public Usuario getUsuarioByEmail(String email) {
+    public Optional<Usuario> getUsuarioByEmail(String email) {
         return usuarioRepo.findByEmail(email);
     }
 
@@ -36,12 +44,21 @@ public class UsuarioService {
                 usuario.getEmail()) || StringUtils.isEmpty(usuario.getPassword())) {
             throw new ResponseMessage("Inserte todos los datos para el registro");
         }
-        usuario.setPassword(this.passwordEncoder.encode(usuario.getPassword()));
+        if (PASSWORD_PATTERN.matcher(usuario.getPassword()).matches()) {
+            usuario.setPassword(this.passwordEncoder.encode(usuario.getPassword()));
+        } else {
+            throw new ResponseMessage("Contraseña no válida. Verifica que tenga al menos un numero y un carácter en mayuscula");
+        }
+
         return usuarioRepo.save(usuario);
     }
 
     public List<Usuario> getAllUsers(){
         return usuarioRepo.findAll();
+    }
+
+    public List<Usuario> getAllUsersLimit(){
+        return usuarioRepo.findAllUsersLimit();
     }
 
     public Usuario modificarUsuario(final Long id, final Usuario usuarioNuevo) {
@@ -70,10 +87,10 @@ public class UsuarioService {
     }
 
     public Map<String, String> loginEmployee(Usuario loginUser) {
-        Usuario user = usuarioRepo.findByEmail(loginUser.getEmail());
-        if (user != null) {
+        Optional<Usuario> user = usuarioRepo.findByEmail(loginUser.getEmail());
+        if (user.isPresent()) {
             String password = loginUser.getPassword();
-            String encodedPassword = user.getPassword();
+            String encodedPassword = user.get().getPassword();
             boolean isPwdRight = passwordEncoder.matches(password, encodedPassword);
             if (isPwdRight) {
                 Optional<Usuario> employee = usuarioRepo.findOneByEmailAndPassword(loginUser.getEmail(), encodedPassword);

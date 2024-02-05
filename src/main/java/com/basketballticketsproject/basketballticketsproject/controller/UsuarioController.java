@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
+import java.util.Optional;
 
 
 
@@ -36,11 +36,9 @@ public class UsuarioController {
     //encontrar user por email
     @GetMapping("/userEmail/{email}")
     public  ResponseEntity<Usuario> getUserByEmail(@PathVariable String email) {
-        final Usuario user = usuarioService.getUsuarioByEmail(email);
-        if (ObjectUtils.isEmpty(user)) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        final Optional<Usuario> user = usuarioService.getUsuarioByEmail(email);
+        return user.map(usuario -> new ResponseEntity<>(usuario, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NO_CONTENT));
     }
 
 
@@ -62,6 +60,16 @@ public class UsuarioController {
     @GetMapping("/getAllUsers")
     public ResponseEntity<List<Usuario>> getAllUsers() {
         final List<Usuario> allUsers = usuarioService.getAllUsers();
+        if (allUsers.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<>(allUsers, HttpStatus.OK);
+    }
+
+    //obtener un grupo de usuarios
+    @GetMapping("/getAllUsersLimit")
+    public ResponseEntity<List<Usuario>> getAllUsersLimit() {
+        final List<Usuario> allUsers = usuarioService.getAllUsersLimit();
         if (allUsers.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
