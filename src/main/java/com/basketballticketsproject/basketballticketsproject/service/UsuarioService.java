@@ -5,6 +5,7 @@ import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
 import com.basketballticketsproject.basketballticketsproject.repo.TicketRepo;
 import com.basketballticketsproject.basketballticketsproject.repo.UsuarioRepo;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,6 +68,7 @@ public class UsuarioService {
         updateUser.setEmail(usuarioNuevo.getEmail());
         updateUser.setNombre(usuarioNuevo.getNombre());
         updateUser.setApellidos(usuarioNuevo.getApellidos());
+        updateUser.setPassword(this.passwordEncoder.encode(usuarioNuevo.getPassword()));
         return usuarioRepo.save(updateUser);
     }
 
@@ -115,5 +117,21 @@ public class UsuarioService {
         userLogin.put("userEmail", String.valueOf(usuario.getEmail()));
         userLogin.put("isAdmin", String.valueOf(usuario.is_admin()));
         return userLogin;
+    }
+
+
+    public Usuario getUsuarioById(Long id) {
+        return usuarioRepo.findById(id).orElse(null);
+    }
+
+    public boolean checkPassword(Usuario usuario, String password) {
+        log.info("password: " + password);
+        log.info("usuario: " + usuario.toString());
+        if (passwordEncoder.matches(password,usuario.getPassword())) {
+            return true;
+        }else {
+            return false;
+        }
+
     }
 }
