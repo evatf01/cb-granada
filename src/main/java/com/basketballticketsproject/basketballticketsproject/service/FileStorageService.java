@@ -88,7 +88,8 @@ public class FileStorageService {
     }
 
 
-    public File getFileBase(final String base64) {
+    public File getFileBase(final String base1, final String base2) {
+        String base64 = base1 + base2;
     	final File file = new File(NOMBRE_PDF_ENTRADAS);
 		try {
 			FileOutputStream fos = new FileOutputStream(file);
