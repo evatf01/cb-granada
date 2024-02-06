@@ -33,9 +33,6 @@ public class FileStorageService {
     @Autowired
     private TicketRepo ticketRepo;
 
-    @Autowired
-    private UsuarioRepo usuarioRepo;
-
     public Long storeFile(final File convFile, final String tituloPartido, final String fechaPartido, String fechaPublicacion) throws IOException {
         //splittear el pdf en varios
         final PDDocument document = PDDocument.load(convFile);
@@ -54,7 +51,7 @@ public class FileStorageService {
 
         //crear partido con el nombre y las fechas
         final Partido partido = new Partido();
-        partido.setEquipoVisitante(tituloPartido);
+        partido.setNombrePartido(tituloPartido);
         partido.setFechaPartido(fecha);
         partido.setFechaPublicacion(fechaPubli);
 
