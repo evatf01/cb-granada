@@ -35,4 +35,9 @@ public class Usuario {
     })
     private Set<Ticket> tickets;
 
+    @Override
+    public String toString() {
+        return "Usuario {" +
+                "id = " + user_id + ", nombre = " + nombre + ", email = " + email + ", is_admin = " + is_admin;
+    }
 }
