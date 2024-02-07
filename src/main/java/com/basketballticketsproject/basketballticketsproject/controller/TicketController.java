@@ -6,32 +6,24 @@ import com.basketballticketsproject.basketballticketsproject.service.FileStorage
 import com.basketballticketsproject.basketballticketsproject.service.TicketService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
-
-import static com.basketballticketsproject.basketballticketsproject.utils.Constants.DATE_FORMATTER;
 
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/cbgranada-api/v1")
 @Slf4j
+@ControllerAdvice
 public class TicketController {
 
     @Autowired

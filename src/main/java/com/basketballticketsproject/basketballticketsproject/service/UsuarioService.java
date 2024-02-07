@@ -5,9 +5,7 @@ import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
 import com.basketballticketsproject.basketballticketsproject.repo.TicketRepo;
 import com.basketballticketsproject.basketballticketsproject.repo.UsuarioRepo;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -67,9 +65,12 @@ public class UsuarioService {
         updateUser.setEmail(usuarioNuevo.getEmail());
         updateUser.setNombre(usuarioNuevo.getNombre());
         updateUser.setApellidos(usuarioNuevo.getApellidos());
-        updateUser.setPassword(this.passwordEncoder.encode(usuarioNuevo.getPassword()));
+        if (usuarioNuevo.getPassword() != null && PASSWORD_PATTERN.matcher(usuarioNuevo.getPassword()).matches()) {
+            updateUser.setPassword(this.passwordEncoder.encode(usuarioNuevo.getPassword()));
+        }
         return usuarioRepo.save(updateUser);
     }
+
 
     public void borrarUsuario(Long id) {
         Usuario deleteUser = usuarioRepo.findById(id)
@@ -125,12 +126,8 @@ public class UsuarioService {
 
     public boolean checkPassword(Usuario usuario, String password) {
         log.info("password: " + password);
-        log.info("usuario: " + usuario.toString());
-        if (passwordEncoder.matches(password,usuario.getPassword())) {
-            return true;
-        }else {
-            return false;
-        }
+        log.info("usuario: " + usuario.getPassword());
+        return passwordEncoder.matches(password, usuario.getPassword());
 
     }
 }
