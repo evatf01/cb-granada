@@ -1,5 +1,6 @@
 package com.basketballticketsproject.basketballticketsproject.service;
 
+import com.basketballticketsproject.basketballticketsproject.dao.LoginUser;
 import com.basketballticketsproject.basketballticketsproject.entity.Ticket;
 import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
 import com.basketballticketsproject.basketballticketsproject.repo.TicketRepo;
@@ -88,7 +89,7 @@ public class UsuarioService {
         usuarioRepo.delete(deleteUser);
     }
 
-    public Map<String, String> loginEmployee(Usuario loginUser) {
+    public LoginUser loginUser(Usuario loginUser) {
         Optional<Usuario> user = usuarioRepo.findByEmail(loginUser.getEmail());
         if (user.isPresent()) {
             String password = loginUser.getPassword();
@@ -97,7 +98,7 @@ public class UsuarioService {
             if (isPwdRight) {
                 Optional<Usuario> employee = usuarioRepo.findOneByEmailAndPassword(loginUser.getEmail(), encodedPassword);
                 if (employee.isPresent()) {
-                    return setUserLoginMap(employee.get());
+                    return setUserLogin(employee.get());
                 } else {
                     throw  new ResponseMessage("Fallo en el login");
                 }
@@ -109,14 +110,9 @@ public class UsuarioService {
         }
     }
 
-    private static Map<String, String> setUserLoginMap(Usuario usuario) {
-        final Map<String, String> userLogin = new HashMap<>();
-        userLogin.put("userId", String.valueOf(usuario.getUser_id()));
-        userLogin.put("userName", String.valueOf(usuario.getNombre()));
-        userLogin.put("userApellidos", String.valueOf(usuario.getApellidos()));
-        userLogin.put("userEmail", String.valueOf(usuario.getEmail()));
-        userLogin.put("isAdmin", String.valueOf(usuario.is_admin()));
-        return userLogin;
+    private static LoginUser setUserLogin(Usuario usuario) {
+        return LoginUser.builder().user_id(usuario.getUser_id()).nombre(usuario.getNombre()).apellidos(usuario.getApellidos())
+                .email(usuario.getEmail()).isAdmin(usuario.is_admin()).build();
     }
 
 
