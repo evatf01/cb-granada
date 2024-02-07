@@ -73,6 +73,7 @@ public class PartidoService {
         final Partido updatePartido = partidoRepo.findById(id).orElseThrow(() -> new IllegalStateException("Partido no existe con Id: " + id));
         updatePartido.setEquipoVisitante(partidoNuevo.getEquipoVisitante());
         updatePartido.setFechaPartido(partidoNuevo.getFechaPartido());
+        updatePartido.setFechaPublicacion(partidoNuevo.getFechaPublicacion());
         return partidoRepo.save(updatePartido);
     }
 }
