@@ -43,8 +43,7 @@ public class TicketController {
     //metodo para añadir un partido con el formulario del front
     @PostMapping("/crearPartidoConEntradas")
     public Long uploadFile(@RequestBody Pdf pdf) throws IOException {
-        return fileStorageService.storeFile(fileStorageService.getFileBase(pdf.getFile()), pdf.getTituloPartido(), pdf.getFechaPartido(), pdf.getFechaPublicacion());
-
+        return fileStorageService.storeFile(fileStorageService.getFileBase(pdf.getFile1(), pdf.getFile2()), pdf.getTituloPartido(), pdf.getFechaPartido(), pdf.getFechaPublicacion());
     }
 
 

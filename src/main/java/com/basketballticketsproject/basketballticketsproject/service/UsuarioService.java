@@ -46,9 +46,8 @@ public class UsuarioService {
         if (PASSWORD_PATTERN.matcher(usuario.getPassword()).matches()) {
             usuario.setPassword(this.passwordEncoder.encode(usuario.getPassword()));
         } else {
-            throw new ResponseMessage("Contraseña no válida. Verifica que tenga al menos un numero y un carácter en mayuscula");
+            throw new ResponseMessage("Contraseña no válida. La contraseña tiene que tener: un numero, sin espacios, minuscula, mayuscula, un caracter epecial, y minimo 8 caracteres");
         }
-
         return usuarioRepo.save(usuario);
     }
 
