@@ -4,7 +4,6 @@ import com.basketballticketsproject.basketballticketsproject.entity.Partido;
 import com.basketballticketsproject.basketballticketsproject.entity.Ticket;
 import com.basketballticketsproject.basketballticketsproject.repo.PartidoRepo;
 import com.basketballticketsproject.basketballticketsproject.repo.TicketRepo;
-import com.basketballticketsproject.basketballticketsproject.repo.UsuarioRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.pdfbox.multipdf.Splitter;
@@ -43,11 +42,15 @@ public class FileStorageService {
         //formatear el formato de la fecha
         final DateTimeFormatter dtf = DateTimeFormatter.ofPattern(DATE_FORMATTER);
         LocalDateTime fecha = LocalDateTime.parse(fechaPartido, dtf);
-        LocalDateTime fechaPubli = null;
-        if(!fechaPublicacion.isEmpty()) 
+        LocalDateTime fechaPubli;
+        if(!fechaPublicacion.isEmpty()) {
             fechaPubli = LocalDateTime.parse(fechaPublicacion, dtf);
-        else
-            fechaPubli = LocalDateTime.now();
+        }else{
+            LocalDateTime date = LocalDateTime.now();
+            DateTimeFormatter formatters = DateTimeFormatter.ofPattern(DATE_FORMATTER);
+            String text = date.format(formatters);
+            fechaPubli = LocalDateTime.parse(text, formatters);
+        }
 
         //crear partido con el nombre y las fechas
         final Partido partido = new Partido();
