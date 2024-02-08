@@ -2,8 +2,11 @@ package com.basketballticketsproject.basketballticketsproject.service;
 
 import com.basketballticketsproject.basketballticketsproject.entity.Partido;
 import com.basketballticketsproject.basketballticketsproject.entity.Ticket;
+import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
 import com.basketballticketsproject.basketballticketsproject.repo.PartidoRepo;
 import com.basketballticketsproject.basketballticketsproject.repo.TicketRepo;
+import com.basketballticketsproject.basketballticketsproject.repo.UsuarioRepo;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,6 +28,8 @@ public class PartidoService {
 
     @Autowired
     TicketRepo ticketRepo;
+    @Autowired
+    UsuarioRepo userRepo;
 
     public Partido addPartido(final Partido partido) {
         return partidoRepo.save(partido);
@@ -44,9 +49,19 @@ public class PartidoService {
         final Partido partido = partidoRepo.findById(id).orElseThrow(() ->
                 new IllegalStateException("Partido no exite con Id: " + id));
         Optional<Set<Ticket>> ticketsPartido = ticketRepo.findByPartido(partido);
-
+        Set<Ticket> partidoTickets = partido.getTickets();
         if (ticketsPartido.isPresent()) {
             for (Ticket entrada : ticketsPartido.get()) {
+                Usuario user = entrada.getUsuario();
+                Partido match = entrada.getPartido();
+                if(user != null) {
+                    user.getTickets().remove(entrada);
+                    userRepo.save(user);
+                }
+                if(match !=null ){
+                    match.getTickets().remove(entrada);
+                    partidoRepo.save(match);
+                }
                 ticketRepo.delete(entrada);
             }
             partido.setTickets(null);
