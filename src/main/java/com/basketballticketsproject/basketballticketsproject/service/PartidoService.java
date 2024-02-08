@@ -2,9 +2,12 @@ package com.basketballticketsproject.basketballticketsproject.service;
 
 import com.basketballticketsproject.basketballticketsproject.entity.Partido;
 import com.basketballticketsproject.basketballticketsproject.entity.Ticket;
+import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
 import com.basketballticketsproject.basketballticketsproject.repo.PartidoRepo;
 import com.basketballticketsproject.basketballticketsproject.repo.TicketRepo;
+import com.basketballticketsproject.basketballticketsproject.repo.UsuarioRepo;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +28,9 @@ public class PartidoService {
 
     @Autowired
     TicketRepo ticketRepo;
+
+    @Autowired
+    private UsuarioRepo usuarioRepo;
 
     public Partido addPartido(final Partido partido) {
         return partidoRepo.save(partido);
@@ -47,10 +53,19 @@ public class PartidoService {
 
         if (ticketsPartido.isPresent()) {
             for (Ticket entrada : ticketsPartido.get()) {
+                if (ObjectUtils.isNotEmpty(entrada.getUsuario())){
+                    Optional<Usuario> usuario = usuarioRepo.findUsuarioWithTicket(entrada.getUsuario().getUser_id());
+                    if (usuario.isPresent()) {
+                        usuario.get().getTickets().remove(entrada);
+                        usuarioRepo.save(usuario.get());
+                    }
+                }
+                entrada.setPartido(null);
+                entrada.setUsuario(null);
                 ticketRepo.delete(entrada);
             }
-            partido.setTickets(null);
         }
+        partido.setTickets(null);
         partidoRepo.delete(partido);
     }
 
@@ -62,7 +77,6 @@ public class PartidoService {
 
         return partidoRepo.findPartidosDesdeFechaActual(parsedDate);
     }
-
 
 
     public Set<Long> getMisPartidosIds(Long userId) {
