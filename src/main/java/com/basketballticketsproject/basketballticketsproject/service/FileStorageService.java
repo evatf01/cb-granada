@@ -65,6 +65,7 @@ public class FileStorageService {
 
         if (ObjectUtils.isEmpty(byFechaPartido)) {
             //recorrer todas las paginas del pdf
+            partidoRepo.save(partido);
             for (int i = 1; iterator.hasNext(); i++) {
 
                 final Ticket ticket = new Ticket();
