@@ -6,8 +6,8 @@ import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
 import com.basketballticketsproject.basketballticketsproject.repo.PartidoRepo;
 import com.basketballticketsproject.basketballticketsproject.repo.TicketRepo;
 import com.basketballticketsproject.basketballticketsproject.repo.UsuarioRepo;
-
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +30,9 @@ public class PartidoService {
     TicketRepo ticketRepo;
     @Autowired
     UsuarioRepo userRepo;
+
+    @Autowired
+    private UsuarioRepo usuarioRepo;
 
     public Partido addPartido(final Partido partido) {
         return partidoRepo.save(partido);
@@ -64,8 +67,8 @@ public class PartidoService {
                 }
                 ticketRepo.delete(entrada);
             }
-            partido.setTickets(null);
         }
+        partido.setTickets(null);
         partidoRepo.delete(partido);
     }
 
@@ -77,7 +80,6 @@ public class PartidoService {
 
         return partidoRepo.findPartidosDesdeFechaActual(parsedDate);
     }
-
 
 
     public Set<Long> getMisPartidosIds(Long userId) {

@@ -20,4 +20,7 @@ public interface UsuarioRepo extends JpaRepository<Usuario, Long> {
 
     @Query(value = "SELECT * FROM usuario LIMIT 10", nativeQuery = true)
     List<Usuario> findAllUsersLimit();
+
+    @Query(value = "SELECT * FROM usuario t where t.user_id = ?1", nativeQuery = true)
+    Optional<Usuario> findUsuarioWithTicket(long id);
 }
