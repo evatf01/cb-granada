@@ -24,6 +24,9 @@ public interface TicketRepo extends JpaRepository<Ticket, Long> {
 
     Optional<Set<Ticket>> findByPartido(Partido partido);
 
+    @Query(value = "SELECT * FROM ticket t where t.usuario_id = ?1 and t.partido_id = ?2", nativeQuery = true)
+    Optional<Ticket> findTicketUsuario(Long idUser, Long idPartido);
+
     @Query(value = "SELECT * FROM ticket t where t.entregada = false and t.partido_id = ?1 LIMIT 1", nativeQuery = true)
     Optional<Ticket> findTicketNoEntregado(Long id);
 }

@@ -94,7 +94,7 @@ public class PartidoController {
     //guardar usurio que se apunte al partido, pasandole su id y la id del partido
     @PostMapping("/saveUsuarioPartido/{userID}/{partidoId}")
     public ResponseEntity<Boolean> saveUsuarioSorteo(@PathVariable Long userID, @PathVariable Long partidoId) {
-        if (ticketService.saveUsuarioSorteo(userID, partidoId)) {
+        if (ticketService.saveUsuarioPartido(userID, partidoId)) {
             return new ResponseEntity<>(true, HttpStatus.OK);
         }
         return new ResponseEntity<>(false, HttpStatus.NO_CONTENT);
@@ -104,7 +104,7 @@ public class PartidoController {
     //quitar del partido a la persona que se quiera desinscribirse
     @DeleteMapping("/deleteUsuarioFromPartido/{userID}/{partidoId}")
     public void deleteUsuarioFromSorteo(@PathVariable Long userID, @PathVariable Long partidoId) {
-        ticketService.deleteUsuarioFromSorteo(userID, partidoId);
+        ticketService.deleteUsuarioFromPartido(userID, partidoId);
     }
 
     @GetMapping("/getMisPartidosIds/{userId}")

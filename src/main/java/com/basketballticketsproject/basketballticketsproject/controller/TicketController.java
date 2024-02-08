@@ -50,9 +50,9 @@ public class TicketController {
     //metodo para añadir un partido, junto con su pdf de entradas DESDE POSTMAN
     @PostMapping("/subirPdf/{nombrePartido}")
     public Long uploadFile(@RequestParam("file") MultipartFile file, @PathVariable String nombrePartido,
-                          @RequestParam String fechaPartido) throws IOException {
+                          @RequestParam String fechaPartido,  @RequestParam String fechaPublicacion) throws IOException {
         final File convFile =  new File(Objects.requireNonNull(file.getOriginalFilename()));
-        return  fileStorageService.storeFile(convFile, nombrePartido, fechaPartido, null);
+        return  fileStorageService.storeFile(convFile, nombrePartido, fechaPartido, fechaPublicacion);
 
     }
 
