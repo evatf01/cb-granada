@@ -80,7 +80,7 @@ public class TicketController {
     }
 
 
-    @GetMapping("/getEntradasNoAsignadas/{fecha}")
+    @GetMapping("/getEntradasNoAsignadas/{id}")
     public List<Ticket> getEntradasNoAsignadas(@PathVariable Long id) {
         return  ticketService.getEntradasNoAsignadas(id);
     }

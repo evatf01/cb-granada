@@ -1,6 +1,7 @@
 package com.basketballticketsproject.basketballticketsproject.controller;
 
 import com.basketballticketsproject.basketballticketsproject.dao.LoginUser;
+import com.basketballticketsproject.basketballticketsproject.dao.PartidoResponse;
 import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
 import com.basketballticketsproject.basketballticketsproject.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
-
 
 
 @CrossOrigin(origins = "http://localhost:4200")
@@ -115,6 +115,13 @@ public class UsuarioController {
     @GetMapping("/getHistorialPartidosUsuarioNumerico/{id}")
     public ResponseEntity<Integer> getHistorialPartidosUsuarioNumerico(@PathVariable Long id) {
         final int numeroPartidos = usuarioService.getHistorialPartidosUsuarioNumerico(id);
+        return new ResponseEntity<>(numeroPartidos, HttpStatus.OK);
+    }
+
+    //obtener los partidos que ha ido el usuario
+    @GetMapping("/getHistorialPartidosUsuario/{id}")
+    public ResponseEntity<List<PartidoResponse> > getHistorialPartidosUsuario(@PathVariable Long id) {
+        final List<PartidoResponse>  numeroPartidos = usuarioService.getHistorialPartidosUsuario(id);
         return new ResponseEntity<>(numeroPartidos, HttpStatus.OK);
     }
 
