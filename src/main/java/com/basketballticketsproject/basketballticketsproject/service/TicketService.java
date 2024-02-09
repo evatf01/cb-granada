@@ -147,4 +147,12 @@ public class TicketService {
         ticket.setPartido(null);
         ticketRepo.delete(ticket);
     }
+
+    public int contadorEntradasRestantes(Long idPartido) {
+        return ticketRepo.findEntradasRestantes(idPartido);
+    }
+
+    public int getNumeroUsuariosPartido(Long partidoId) {
+        return this.getUsuariosSorteo(partidoId).size();
+    }
 }

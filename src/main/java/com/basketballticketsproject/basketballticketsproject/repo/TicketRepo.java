@@ -3,13 +3,11 @@ package com.basketballticketsproject.basketballticketsproject.repo;
 import com.basketballticketsproject.basketballticketsproject.entity.Partido;
 import com.basketballticketsproject.basketballticketsproject.entity.Ticket;
 import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
-import org.apache.poi.sl.draw.geom.GuideIf;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 
 public interface TicketRepo extends JpaRepository<Ticket, Long> {
 
@@ -29,4 +27,7 @@ public interface TicketRepo extends JpaRepository<Ticket, Long> {
 
     @Query(value = "SELECT * FROM ticket t where t.entregada = false and t.partido_id = ?1 LIMIT 1", nativeQuery = true)
     Optional<Ticket> findTicketNoEntregado(Long id);
+
+    @Query(value = "SELECT count(*) FROM ticket t where t.partido_id = ?1 AND t.entregada = false ", nativeQuery = true)
+    int findEntradasRestantes(long idPartido);
 }

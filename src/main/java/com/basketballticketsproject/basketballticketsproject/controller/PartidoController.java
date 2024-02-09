@@ -91,6 +91,14 @@ public class PartidoController {
         return new ResponseEntity<>(usuarios,HttpStatus.NO_CONTENT);
     }
 
+    //obtener el número de usuarios apuntados a un partido
+    @GetMapping("/getNumeroUsuariosPartido/{partidoId}")
+    public ResponseEntity<Integer> getNumeroUsuariosPartido(@PathVariable Long partidoId) {
+        final int numUsuarios =  ticketService.getNumeroUsuariosPartido(partidoId);
+
+        return new ResponseEntity<>(numUsuarios,  HttpStatus.OK);
+    }
+
     //guardar usurio que se apunte al partido, pasandole su id y la id del partido
     @PostMapping("/saveUsuarioPartido/{userID}/{partidoId}")
     public ResponseEntity<Boolean> saveUsuarioSorteo(@PathVariable Long userID, @PathVariable Long partidoId) {

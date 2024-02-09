@@ -111,5 +111,11 @@ public class UsuarioController {
         return new ResponseEntity<>(false, HttpStatus.NO_CONTENT);
     }
 
+    //obtener el número de partidos que ha ido el usuario
+    @GetMapping("/getHistorialPartidosUsuarioNumerico/{id}")
+    public ResponseEntity<Integer> getHistorialPartidosUsuarioNumerico(@PathVariable Long id) {
+        final int numeroPartidos = usuarioService.getHistorialPartidosUsuarioNumerico(id);
+        return new ResponseEntity<>(numeroPartidos, HttpStatus.OK);
+    }
 
 }
