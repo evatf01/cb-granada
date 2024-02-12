@@ -58,6 +58,7 @@ public class TicketService {
                 ticketNoEntregado.get().setUsuario(usuario);
                 ticketNoEntregado.get().setEntregada(true);
                 usuario.getTickets().add(ticketNoEntregado.get());
+                usuario.setPartidosAsistidos(usuario.getPartidosAsistidos() + 1);
                 ticketNoEntregado.get().getPartido().setStockEntradas(
                         ticketNoEntregado.get().getPartido().getStockEntradas() - 1
                 );
@@ -85,6 +86,9 @@ public class TicketService {
             //obtener la entrada del usuario de ese partido
             if (ticketUsuario != null) {
                 ticketUsuario.getUsuario().getTickets().remove(ticketUsuario);
+                if (ticketUsuario.getUsuario().getPartidosAsistidos() > 0 ){
+                    ticketUsuario.getUsuario().setPartidosAsistidos(ticketUsuario.getUsuario().getPartidosAsistidos() -1 );
+                }
                 usuarioRepo.save(ticketUsuario.getUsuario());
                 //se le desasigna la entrada y se vuelve a poner entragada a false
                 ticketUsuario.setUsuario(null);
