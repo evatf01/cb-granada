@@ -57,7 +57,7 @@ public class TicketController {
 
     //enviar entrada al usuario
     @GetMapping("/enviarEntrada/{userID}/{partidoId}")
-    public ResponseEntity<String> enviarEntrada(@PathVariable Long userID, @PathVariable Long partidoId) throws UnsupportedEncodingException {
+    public ResponseEntity<String> enviarEntrada(@PathVariable Long userID, @PathVariable Long partidoId) {
         final String entrada = ticketService.enviarEntrada(userID, partidoId);
         return new ResponseEntity<>(entrada, HttpStatus.OK);
        }
@@ -65,7 +65,7 @@ public class TicketController {
 
     //metodo para obtener una entrada con su nombre
     @GetMapping("/getEntrada/{nombreEntrada}")
-    public ResponseEntity<byte[]> getImage(@PathVariable String nombreEntrada) throws UnsupportedEncodingException {
+    public ResponseEntity<byte[]> getImage(@PathVariable String nombreEntrada) {
         byte[] imageData = fileStorageService.getFileByNumber(nombreEntrada);
 
         return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.valueOf("application/pdf")).body(imageData);
@@ -73,7 +73,7 @@ public class TicketController {
 
 
     @GetMapping("/entradasSobrantes/{idPartido}")
-    public ResponseEntity<Integer> entradasSobrantes(@PathVariable Long idPartido) throws IOException {
+    public ResponseEntity<Integer> entradasSobrantes(@PathVariable Long idPartido) {
         int numEntradas = ticketService.contadorEntradasRestantes(idPartido);
         return new ResponseEntity<>(numEntradas, HttpStatus.OK);
 

@@ -58,17 +58,18 @@ public class TicketService {
                 ticketNoEntregado.get().setUsuario(usuario);
                 ticketNoEntregado.get().setEntregada(true);
                 usuario.getTickets().add(ticketNoEntregado.get());
-
+                ticketNoEntregado.get().getPartido().setStockEntradas(
+                        ticketNoEntregado.get().getPartido().getStockEntradas() - 1
+                );
                 usuarioRepo.save(usuario);
                 ticketRepo.save(ticketNoEntregado.get());
 
                 //comprobamos si nos quedamos sin entradas
-                Ticket ticketRestante = ticketRepo.findTicketNoEntregado(idPartido).orElse(null);
-                if(ticketRestante == null)
-                    setStockEntradasFalse(partido);
+                if (ticketNoEntregado.get().getPartido().getStockEntradas() <= 0 ){
+                    return false;
+                }
                 return true;
             } else {
-                this.setStockEntradasFalse(partido);
                 log.info("Ya no quedan entradas disponibles");
                 return false;
             }
@@ -89,7 +90,7 @@ public class TicketService {
                 ticketUsuario.setUsuario(null);
                 ticketUsuario.setEntregada(false);
                 //en partido nos aseguramos que indica que sigue habiendo entradas
-                ticketUsuario.getPartido().setStockEntradas(true);
+                ticketUsuario.getPartido().setStockEntradas(ticketUsuario.getPartido().getStockEntradas() + 1);
                 ticketRepo.save(ticketUsuario);
                 partidoRepo.save(ticketUsuario.getPartido());
 
@@ -125,10 +126,6 @@ public class TicketService {
         return  partidoFecha.getTickets().stream().filter(partido -> !partido.isEntregada()).toList();
     }
 
-    private void setStockEntradasFalse(Partido partido) {
-        partido.setStockEntradas(false);
-        partidoRepo.save(partido);
-    }
 
     public void borrarTicket(Long id) {
         Ticket ticket = ticketRepo.findById(id).orElseThrow(() ->

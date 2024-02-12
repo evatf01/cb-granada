@@ -57,7 +57,7 @@ public class FileStorageService {
         partido.setEquipoVisitante(equipoVisitante);
         partido.setFechaPartido(fecha);
         partido.setFechaPublicacion(fechaPubli);
-
+        partido.setStockEntradas(NUM_ENTRADAS);
         final Set<Ticket> ticketSet = new HashSet<>();
 
         //comprobar si no se ha creado ese partido

@@ -36,7 +36,7 @@ public class Partido {
 
     private String equipoVisitante;
 
-    private boolean stockEntradas = true;
+    private int stockEntradas;
 
     @OneToMany(mappedBy = "partido", cascade = CascadeType.ALL)
     private Set<Ticket> tickets;
