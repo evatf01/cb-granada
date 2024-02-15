@@ -11,9 +11,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.core.Local;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -109,29 +116,43 @@ public class TicketService {
         }
     }
 
-    public String enviarEntrada(final Long userID, final Long partidoId){
-
-       final Usuario usuario = usuarioRepo.findById(userID).orElse(null);
-       final Partido partido = partidoRepo.findById(partidoId).orElse(null);
-
-        final Set<Usuario> usuariosSorteo = this.getUsuariosSorteo(partidoId);
-
-        byte[] entrada;
-        String pdfBase64 = StringUtils.EMPTY;
-        //comprobar que el usuario está apuntado al partido
-        if(usuariosSorteo.contains(usuario) && usuario != null) {
-            ///obtener la entrada de ese usario para ese partido
-            final Optional<Ticket> entradaUsario = ticketRepo.findOneByUsuarioAndPartido(usuario, partido);
-            if (entradaUsario.isPresent()) {
-                pdfBase64 = entradaUsario.get().getPdfBase64();
-            } else {
-                throw new ResponseMessage("No se encuentra la entrada para este usuario y este partido");
-            }
-        }else {
-            throw new ResponseMessage("No estas apuntado a este partido");
-        }
-        return pdfBase64;
+    public String getTicketPath(Long userId, Long partidoId) {
+        return ticketRepo.findTicketPath(userId, partidoId);
     }
+    public InputStreamResource getTicketPdf(Long userId, Long partidoId) {
+        String path = ticketRepo.findTicketPath(userId, partidoId);    
+        InputStreamResource inputStreamResource = null;     
+        try {
+            FileInputStream fileInputStream = new FileInputStream(path);
+            inputStreamResource = new InputStreamResource(fileInputStream);
+        } catch(Exception ex) {
+            ex.printStackTrace();
+        }       
+        return inputStreamResource;
+    }
+    // public String enviarEntrada(final Long userID, final Long partidoId){
+
+    //    final Usuario usuario = usuarioRepo.findById(userID).orElse(null);
+    //    final Partido partido = partidoRepo.findById(partidoId).orElse(null);
+
+    //     final Set<Usuario> usuariosSorteo = this.getUsuariosSorteo(partidoId);
+
+    //     byte[] entrada;
+    //     String pdfBase64 = StringUtils.EMPTY;
+    //     //comprobar que el usuario está apuntado al partido
+    //     if(usuariosSorteo.contains(usuario) && usuario != null) {
+    //         ///obtener la entrada de ese usario para ese partido
+    //         final Optional<Ticket> entradaUsario = ticketRepo.findOneByUsuarioAndPartido(usuario, partido);
+    //         if (entradaUsario.isPresent()) {
+    //             pdfBase64 = entradaUsario.get().getPdfBase64();
+    //         } else {
+    //             throw new ResponseMessage("No se encuentra la entrada para este usuario y este partido");
+    //         }
+    //     }else {
+    //         throw new ResponseMessage("No estas apuntado a este partido");
+    //     }
+    //     return pdfBase64;
+    // }
 
     public List<Ticket> getEntradasNoAsignadas(Long id) {
         final Partido partidoFecha = partidoRepo.findById(id).orElseThrow(() ->

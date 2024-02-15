@@ -15,12 +15,14 @@ public interface TicketRepo extends JpaRepository<Ticket, Long> {
 
     Optional<Ticket> findById(Long id);
 
-    Ticket findByEntrada(String entrada);
+    // Ticket findByEntrada(String entrada);
 
     Optional<Set<Ticket>>  findByUsuario(Usuario usuario);
 
     Optional<Ticket> findOneByUsuarioAndPartido(Usuario user, Partido partido);
 
+    @Query(value = "SELECT path FROM ticket t where t.usuario_id = ?1 AND t.partido_id = ?2", nativeQuery = true)
+    String findTicketPath(Long userId, Long partidoId);
 
     Optional<Set<Ticket>> findByPartido(Partido partido);
 

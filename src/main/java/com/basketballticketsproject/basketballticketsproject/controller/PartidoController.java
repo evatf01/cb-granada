@@ -3,16 +3,26 @@ package com.basketballticketsproject.basketballticketsproject.controller;
 
 import com.basketballticketsproject.basketballticketsproject.entity.Partido;
 import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
+import com.basketballticketsproject.basketballticketsproject.service.FileStorageService;
 import com.basketballticketsproject.basketballticketsproject.service.PartidoService;
 import com.basketballticketsproject.basketballticketsproject.service.TicketService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.Set;
 
@@ -25,15 +35,43 @@ public class PartidoController {
 
     @Autowired
     PartidoService partidoService;
-
     @Autowired
-    private TicketService ticketService;
+    TicketService ticketService;
+    @Autowired 
+    FileStorageService fileStorageService;
 
 
     //añadir un partido sin pdf
     @PostMapping("/addPartido")
     public Partido addPartido(@RequestBody Partido partido) {
         return partidoService.addPartido(partido);
+    }
+
+    @PostMapping(value= "/subirPartido", consumes = { MediaType.APPLICATION_JSON_VALUE,MediaType.MULTIPART_FORM_DATA_VALUE })
+    public String crearPartido(@RequestPart("partido") String partidoStr, @RequestPart("entradasPdf") MultipartFile entradasPdf) throws IOException{
+        Partido partido = null;
+        System.out.println(partidoStr);
+        System.out.println(entradasPdf.getOriginalFilename());
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.registerModule(new JavaTimeModule()); //Permite que transforme las fechas
+            partido = mapper.readValue(partidoStr, Partido.class);
+        } catch (IOException err) {
+            System.out.println("======== Error crearPartido =============");
+            System.out.println(err.toString());
+        }
+        if(partido != null) {           
+            File entradas =  new File(entradasPdf.getOriginalFilename());
+            try (OutputStream os = new FileOutputStream(entradas)) {
+                os.write(entradasPdf.getBytes());
+            }
+            fileStorageService.storeFile(entradas, partido);
+            entradas.delete();
+            
+            return "done";
+        } 
+        else 
+            return "No se pudo leer el partido";      
     }
 
     //borrar un partido
