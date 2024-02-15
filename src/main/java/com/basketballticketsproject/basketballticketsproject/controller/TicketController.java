@@ -17,7 +17,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -90,19 +89,15 @@ public class TicketController {
     // }
 
 
-/*
-    @GetMapping("/entradasSobrantes/{fecha}")
-    public ResponseEntity<byte[]> entradasSobrantes(@PathVariable String fecha) throws IOException {
-        byte[] bytes = sorteoService.obtenerEntradasSobrantes(fecha);
-        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.valueOf("application/pdf")).body(bytes);
+    @GetMapping("/entradasSobrantes/{idPartido}")
+    public ResponseEntity<Integer> entradasSobrantes(@PathVariable Long idPartido) {
+        int numEntradas = ticketService.contadorEntradasRestantes(idPartido);
+        return new ResponseEntity<>(numEntradas, HttpStatus.OK);
 
     }
 
 
- */
-
-
-    @GetMapping("/getEntradasNoAsignadas/{fecha}")
+    @GetMapping("/getEntradasNoAsignadas/{id}")
     public List<Ticket> getEntradasNoAsignadas(@PathVariable Long id) {
         return  ticketService.getEntradasNoAsignadas(id);
     }

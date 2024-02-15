@@ -11,9 +11,6 @@ import java.util.Set;
 
 public interface PartidoRepo extends JpaRepository<Partido, Long> {
 
-    @Query(value = "SELECT * FROM partido order by fecha_partido ASC", nativeQuery = true)
-    Set<Partido> getFechasSortAsc();
-
     Partido findByFechaPartido(LocalDateTime fecha);
 
     @Query(value = "SELECT * FROM partido where ?1 < fecha_partido && ?1 >= fecha_publicacion ORDER BY fecha_partido", nativeQuery = true)

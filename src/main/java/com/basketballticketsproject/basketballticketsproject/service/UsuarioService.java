@@ -1,11 +1,14 @@
 package com.basketballticketsproject.basketballticketsproject.service;
 
 import com.basketballticketsproject.basketballticketsproject.dao.LoginUser;
+import com.basketballticketsproject.basketballticketsproject.dao.PartidoResponse;
+import com.basketballticketsproject.basketballticketsproject.entity.Partido;
 import com.basketballticketsproject.basketballticketsproject.entity.Ticket;
 import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
 import com.basketballticketsproject.basketballticketsproject.repo.TicketRepo;
 import com.basketballticketsproject.basketballticketsproject.repo.UsuarioRepo;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -125,5 +128,27 @@ public class UsuarioService {
         log.info("usuario: " + usuario.getPassword());
         return passwordEncoder.matches(password, usuario.getPassword());
 
+    }
+
+    public int getHistorialPartidosUsuarioNumerico(Long id) {
+        int numeroPartidos = 0;
+        Usuario usuario = usuarioRepo.findById(id).orElse(null);
+        if (ObjectUtils.isNotEmpty(usuario) && ObjectUtils.isNotEmpty(usuario.getTickets())){
+            numeroPartidos=  usuario.getTickets().size();
+        }
+        return numeroPartidos;
+    }
+
+    public List<PartidoResponse>  getHistorialPartidosUsuario(Long id) {
+        List<PartidoResponse> listaPartidos = new ArrayList<>();
+        Usuario usuario = usuarioRepo.findById(id).orElse(null);
+        if (ObjectUtils.isNotEmpty(usuario) && ObjectUtils.isNotEmpty(usuario.getTickets())){
+            for (Ticket ticket : usuario.getTickets()) {
+                listaPartidos.add(PartidoResponse.builder().equipoVisitante(ticket.getPartido().getEquipoVisitante())
+                        .fechaPartido(String.valueOf(ticket.getPartido().getFechaPartido()))
+                        .build());
+              }
+        }
+        return listaPartidos;
     }
 }

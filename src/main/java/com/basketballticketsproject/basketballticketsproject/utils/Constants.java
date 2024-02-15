@@ -12,5 +12,6 @@ public class Constants {
     public static final String PASSWORD_REGEX = "^(?=.*\\d)(?=\\S+$)(?=.*[@#$%^&+=*_-])(?=.*[a-z])(?=.*[A-Z]).{8,}$";
 
     public static final String ENTRADAS_PATH = "../Entradas";
-
+    
+    public static final int NUM_ENTRADAS = 50;
 }

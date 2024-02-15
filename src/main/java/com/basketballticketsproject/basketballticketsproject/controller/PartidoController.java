@@ -129,10 +129,18 @@ public class PartidoController {
         return new ResponseEntity<>(usuarios,HttpStatus.NO_CONTENT);
     }
 
+    //obtener el número de usuarios apuntados a un partido
+    @GetMapping("/getNumeroUsuariosPartido/{partidoId}")
+    public ResponseEntity<Integer> getNumeroUsuariosPartido(@PathVariable Long partidoId) {
+        final int numUsuarios =  ticketService.getNumeroUsuariosPartido(partidoId);
+
+        return new ResponseEntity<>(numUsuarios,  HttpStatus.OK);
+    }
+
     //guardar usurio que se apunte al partido, pasandole su id y la id del partido
     @PostMapping("/saveUsuarioPartido/{userID}/{partidoId}")
     public ResponseEntity<Boolean> saveUsuarioSorteo(@PathVariable Long userID, @PathVariable Long partidoId) {
-        if (ticketService.saveUsuarioSorteo(userID, partidoId)) {
+        if (ticketService.saveUsuarioPartido(userID, partidoId)) {
             return new ResponseEntity<>(true, HttpStatus.OK);
         }
         return new ResponseEntity<>(false, HttpStatus.NO_CONTENT);
@@ -142,7 +150,7 @@ public class PartidoController {
     //quitar del partido a la persona que se quiera desinscribirse
     @DeleteMapping("/deleteUsuarioFromPartido/{userID}/{partidoId}")
     public void deleteUsuarioFromSorteo(@PathVariable Long userID, @PathVariable Long partidoId) {
-        ticketService.deleteUsuarioFromSorteo(userID, partidoId);
+        ticketService.deleteUsuarioFromPartido(userID, partidoId);
     }
 
     @GetMapping("/getMisPartidosIds/{userId}")

@@ -28,6 +28,8 @@ public class Usuario {
     @Column(unique = true)
     private String email;
 
+    private int partidosAsistidos = 0;
+
     private boolean is_admin = false;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "usuario", cascade = {
