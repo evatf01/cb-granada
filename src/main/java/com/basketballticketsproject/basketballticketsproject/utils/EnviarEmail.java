@@ -21,6 +21,8 @@ import java.util.stream.Collectors;
 import static com.basketballticketsproject.basketballticketsproject.utils.Constants.EMAIL_ASUNTO;
 import static com.basketballticketsproject.basketballticketsproject.utils.Constants.EMAIL_MENSAJE;
 
+
+
 @Component
 @Slf4j
 public class EnviarEmail {
@@ -29,11 +31,9 @@ public class EnviarEmail {
     private  JavaMailSender mailSender;
 
     public  void enviarEmailEntrada(Set<Partido> partidos) throws MessagingException {
-
-
         List<PartidoResponse> partidoResponseList = new ArrayList<>();
         SimpleMailMessage email = new SimpleMailMessage();
-        email.setTo("MARIA.AVELLANEDAS-NOCETE@t-systems.com");
+        email.setTo("evatallon@gmail.com");
         email.setSubject(EMAIL_ASUNTO);
         for (Partido partido: partidos) {
             String fecha = StringUtils.replace(String.valueOf(partido.getFechaPartido()), "T", " ");
@@ -61,3 +61,5 @@ public class EnviarEmail {
         return props;
     }
 }
+
+

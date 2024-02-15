@@ -2,8 +2,6 @@ package com.basketballticketsproject.basketballticketsproject.scheduler;
 
 import com.basketballticketsproject.basketballticketsproject.entity.Partido;
 import com.basketballticketsproject.basketballticketsproject.repo.PartidoRepo;
-import com.basketballticketsproject.basketballticketsproject.repo.UsuarioRepo;
-import com.basketballticketsproject.basketballticketsproject.service.TicketService;
 import com.basketballticketsproject.basketballticketsproject.utils.EnviarEmail;
 import jakarta.mail.MessagingException;
 import org.apache.commons.collections4.CollectionUtils;
@@ -43,4 +41,7 @@ public class RecontarEntradasScheduler {
 
     }
 
+
 }
+
+

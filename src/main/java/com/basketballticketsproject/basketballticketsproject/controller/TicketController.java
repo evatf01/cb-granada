@@ -56,9 +56,10 @@ public class TicketController {
     }
 
     //enviar entrada al usuario
-    @GetMapping("/enviarEntrada/{userID}/{partidoId}")
-    public ResponseEntity<String> enviarEntrada(@PathVariable Long userID, @PathVariable Long partidoId) {
-        final String entrada = ticketService.enviarEntrada(userID, partidoId);
+    @GetMapping("/enviarEntrada/{userID}/{partidoId}/{numEntradas}")
+    public ResponseEntity<List<String>> enviarEntrada(@PathVariable Long userID, @PathVariable Long partidoId,
+                                                      @PathVariable int numEntradas) {
+        final List<String> entrada = ticketService.enviarEntrada(userID, partidoId, numEntradas);
         return new ResponseEntity<>(entrada, HttpStatus.OK);
        }
 
