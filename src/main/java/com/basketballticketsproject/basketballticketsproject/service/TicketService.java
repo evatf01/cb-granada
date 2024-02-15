@@ -47,21 +47,23 @@ public class TicketService {
     public Boolean saveUsuarioPartido(final Long idUser, final Long idPartido) {
         final Usuario usuario = usuarioRepo.findById(idUser).orElse(null);
         final Partido partido = partidoRepo.findById(idPartido).orElse(null);
-        final Optional<Ticket> oneByUsuarioAndPartido = ticketRepo.findOneByUsuarioAndPartido(usuario, partido);
-        if (partido != null  && !ObjectUtils.isEmpty(usuario) && !oneByUsuarioAndPartido.isPresent()) {
+        //final Optional<Ticket> oneByUsuarioAndPartido = ticketRepo.findOneByUsuarioAndPartido(usuario, partido);
+        if (partido != null  && !ObjectUtils.isEmpty(usuario)) {
 
             //obtener una entrada que no esté asignada
             final Optional<Ticket> ticketNoEntregado = ticketRepo.findTicketNoEntregado(idPartido);
 
-            if (ticketNoEntregado.isPresent() ) {
+            if (ticketNoEntregado.isPresent() && usuario.getTickets().size() <=1) {
                 //guardar en la tabla ticket el usuario con la entrada en entregada true
                 ticketNoEntregado.get().setUsuario(usuario);
                 ticketNoEntregado.get().setEntregada(true);
                 usuario.getTickets().add(ticketNoEntregado.get());
                 usuario.setPartidosAsistidos(usuario.getPartidosAsistidos() + 1);
-                ticketNoEntregado.get().getPartido().setStockEntradas(
-                        ticketNoEntregado.get().getPartido().getStockEntradas() - 1
-                );
+                if (ticketNoEntregado.get().getPartido().getStockEntradas() > 0) {
+                    ticketNoEntregado.get().getPartido().setStockEntradas(
+                            ticketNoEntregado.get().getPartido().getStockEntradas() - 1);
+                }
+
                 usuarioRepo.save(usuario);
                 ticketRepo.save(ticketNoEntregado.get());
 
@@ -71,7 +73,7 @@ public class TicketService {
                 }
                 return true;
             } else {
-                log.info("Ya no quedan entradas disponibles");
+                log.info("No quedan entradas disponibles/Ya tienes dos entradas para este partido");
                 return false;
             }
         } else {

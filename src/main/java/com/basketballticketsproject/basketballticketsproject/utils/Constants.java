@@ -13,4 +13,10 @@ public class Constants {
 
     public static final int NUM_ENTRADAS = 50;
 
+    public static String EMAIL_ASUNTO = "PARTIDOS GRANADA";
+
+
+    public static String EMAIL_MENSAJE = "Partidos disponibles actualmente: \n";
+
+
 }

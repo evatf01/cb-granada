@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
@@ -18,6 +19,7 @@ import static com.basketballticketsproject.basketballticketsproject.utils.Consta
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Slf4j
 public class Partido {
 
     @Id
@@ -38,7 +40,7 @@ public class Partido {
 
     private int stockEntradas;
 
-    @OneToMany(mappedBy = "partido", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "partido", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<Ticket> tickets;
 
 
@@ -49,4 +51,5 @@ public class Partido {
                 ", equipoVisitante='" + equipoVisitante + '\'' +
                 '}';
     }
+
 }
