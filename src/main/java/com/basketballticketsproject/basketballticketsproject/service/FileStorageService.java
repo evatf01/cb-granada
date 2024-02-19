@@ -46,7 +46,8 @@ public class FileStorageService {
         //comprobar si no se ha creado ese partido
         final Partido byFechaPartido = partidoRepo.findByFechaPartido(partido.getFechaPartido());
 
-        if (ObjectUtils.isEmpty(byFechaPartido)) {          
+        if (ObjectUtils.isEmpty(byFechaPartido)) {
+            partido.setStockEntradas(NUM_ENTRADAS);
             partidoRepo.save(partido);
             // En ../Entradas están las entradas de la app (ENTRADAS_PATH). Cada partido tiene una subcarpeta con un nombre único y dentro sus entradas
             // Entradas/[fechaPartido]_Granada-[EquipoVisitante]/entrada[i].pdf
@@ -56,6 +57,7 @@ public class FileStorageService {
             new File(carpetaDestino).mkdirs();
             
             //recorrer todas las paginas del pdf
+            int numStock = 0;
             for (int i = 1; iterator.hasNext(); i++) {
                 final Ticket ticket = new Ticket();
                 ticket.setPath(carpetaDestino+"/entrada"+i+".pdf");
@@ -74,7 +76,10 @@ public class FileStorageService {
                 new File(carpetaDestino + "/entrada"+i+".pdf").delete();
                 //guardamos la entrada ya optimizada
                 entradaOptimizada.save(carpetaDestino +"/entrada"+i+".pdf");
+                numStock = i;
+
             }
+            partido.setStockEntradas(numStock);
             partido.setTickets(ticketSet);
             partidoRepo.save(partido);
         }

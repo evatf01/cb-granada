@@ -27,7 +27,7 @@ public class RecontarEntradasScheduler {
     private EnviarEmail enviarEmail;
 
     //@Scheduled(cron = "0 0 13 ? * 4 ")
-    @Scheduled(cron = " 0 23 10 * * ?")
+    //@Scheduled(cron = " 0 23 10 * * ?")
     public void enviarCorreo() throws MessagingException {
         LocalDateTime date = LocalDateTime.now();
         DateTimeFormatter formatters = DateTimeFormatter.ofPattern(DATE_FORMATTER);

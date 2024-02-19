@@ -59,9 +59,9 @@ public class TicketController {
 
 
     @GetMapping("/descargarEntrada/{userId}/{partidoId}")
-    public ResponseEntity<InputStreamResource> getTicketPdf(@PathVariable Long userId, @PathVariable Long partidoId) {
-        ResponseEntity<InputStreamResource> response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        InputStreamResource inputStreamResource = ticketService.getTicketPdf(userId, partidoId);
+    public ResponseEntity< byte[]> getTicketPdf(@PathVariable Long userId, @PathVariable Long partidoId) {
+        ResponseEntity< byte[]> response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        byte[] inputStreamResource = ticketService.getTicketPdf(userId, partidoId);
 
         if(inputStreamResource != null) {
             HttpHeaders headers = new HttpHeaders();
@@ -72,12 +72,33 @@ public class TicketController {
         return response;
     }
 
+
+    @GetMapping("/descargarEntradasAdicionales/{userId}/{partidoId}/{numEntradas}")
+    public ResponseEntity < byte[] > getTicketsAdicionalesPdf(@PathVariable Long userId, @PathVariable Long partidoId,
+                                                                        @PathVariable int numEntradas) {
+        ResponseEntity< byte[]> response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        byte[] inputStreamResource = ticketService.getTicketsAdicionalesPdf(userId, partidoId, numEntradas);
+
+        if(inputStreamResource != null) {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            response = new ResponseEntity<>(inputStreamResource, headers, HttpStatus.OK);
+        }
+
+        return response;
+    }
+
+
+
+
     //enviar entrada al usuario
     // @GetMapping("/enviarEntrada/{userID}/{partidoId}")
     // public ResponseEntity<String> enviarEntrada(@PathVariable Long userID, @PathVariable Long partidoId) throws UnsupportedEncodingException {
     //     final String entrada = ticketService.enviarEntrada(userID, partidoId);
     //     return new ResponseEntity<>(entrada, HttpStatus.OK);
     //    }
+
+    /*
     @GetMapping("/enviarEntrada/{userID}/{partidoId}/{numEntradas}")
     public ResponseEntity<List<String>> enviarEntrada(@PathVariable Long userID, @PathVariable Long partidoId,
                                                       @PathVariable int numEntradas) {
@@ -85,6 +106,8 @@ public class TicketController {
         return new ResponseEntity<>(entrada, HttpStatus.OK);
        }
 
+
+     */
 
     //metodo para obtener una entrada con su nombre
     // @GetMapping("/getEntrada/{nombreEntrada}")
