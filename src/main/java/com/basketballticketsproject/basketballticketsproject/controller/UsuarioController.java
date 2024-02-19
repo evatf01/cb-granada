@@ -1,5 +1,7 @@
 package com.basketballticketsproject.basketballticketsproject.controller;
 
+import com.basketballticketsproject.basketballticketsproject.dao.LoginUser;
+import com.basketballticketsproject.basketballticketsproject.dao.PartidoResponse;
 import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
 import com.basketballticketsproject.basketballticketsproject.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,9 +11,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
+import java.util.Optional;
 
 
 @CrossOrigin(origins = "http://localhost:4200")
@@ -32,15 +32,21 @@ public class UsuarioController {
         }
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
-
-    //encontrar user por email
-    @GetMapping("/userEmail/{email}")
-    public  ResponseEntity<Usuario> getUserByEmail(@PathVariable String email) {
-        final Usuario user = usuarioService.getUsuarioByEmail(email);
+    @GetMapping("/userById/{id}")
+    public ResponseEntity<Usuario> getUserById(@PathVariable Long id) {
+        final Usuario user = usuarioService.getUsuarioById(id);
         if (ObjectUtils.isEmpty(user)) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
         return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+
+    //encontrar user por email
+    @GetMapping("/userEmail/{email}")
+    public  ResponseEntity<Usuario> getUserByEmail(@PathVariable String email) {
+        final Optional<Usuario> user = usuarioService.getUsuarioByEmail(email);
+        return user.map(usuario -> new ResponseEntity<>(usuario, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NO_CONTENT));
     }
 
 
@@ -52,8 +58,8 @@ public class UsuarioController {
 
     //login
     @PostMapping(path = "/login")
-    public ResponseEntity<Map<String,String>> loginEmployee(@RequestBody Usuario usuario) {
-        final Map<String,String> login = usuarioService.loginEmployee(usuario);
+    public ResponseEntity<LoginUser> loginUser(@RequestBody Usuario usuario) {
+        final LoginUser login = usuarioService.loginUser(usuario);
         return ResponseEntity.ok(login);
     }
 
@@ -62,6 +68,16 @@ public class UsuarioController {
     @GetMapping("/getAllUsers")
     public ResponseEntity<List<Usuario>> getAllUsers() {
         final List<Usuario> allUsers = usuarioService.getAllUsers();
+        if (allUsers.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<>(allUsers, HttpStatus.OK);
+    }
+
+    //obtener un grupo de usuarios
+    @GetMapping("/getAllUsersLimit")
+    public ResponseEntity<List<Usuario>> getAllUsersLimit() {
+        final List<Usuario> allUsers = usuarioService.getAllUsersLimit();
         if (allUsers.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
@@ -86,5 +102,27 @@ public class UsuarioController {
         usuarioService.borrarUsuario(id);
     }
 
+    @GetMapping("/checkPasswords/{usuario}/{password}")
+    public ResponseEntity<Boolean> checkPasswords(@PathVariable Usuario usuario, @PathVariable String password) {
+        final boolean check = usuarioService.checkPassword(usuario, password);
+        if (check) {
+            return new ResponseEntity<>(true, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(false, HttpStatus.NO_CONTENT);
+    }
+
+    //obtener el número de partidos que ha ido el usuario
+    @GetMapping("/getHistorialPartidosUsuarioNumerico/{id}")
+    public ResponseEntity<Integer> getHistorialPartidosUsuarioNumerico(@PathVariable Long id) {
+        final int numeroPartidos = usuarioService.getHistorialPartidosUsuarioNumerico(id);
+        return new ResponseEntity<>(numeroPartidos, HttpStatus.OK);
+    }
+
+    //obtener los partidos que ha ido el usuario
+    @GetMapping("/getHistorialPartidosUsuario/{id}")
+    public ResponseEntity<List<PartidoResponse> > getHistorialPartidosUsuario(@PathVariable Long id) {
+        final List<PartidoResponse>  numeroPartidos = usuarioService.getHistorialPartidosUsuario(id);
+        return new ResponseEntity<>(numeroPartidos, HttpStatus.OK);
+    }
 
 }

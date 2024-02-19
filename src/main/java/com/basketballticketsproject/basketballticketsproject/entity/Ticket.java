@@ -20,23 +20,18 @@ public class Ticket {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Lob
-    @Column(name = "pdfBase64", columnDefinition = "longtext")
     @JsonIgnore
-    private String pdfBase64;
-
-    private String entrada;
-
+    private String path;
 
     private boolean entregada;
 
     @JsonIgnore
-    @ManyToOne(cascade = {CascadeType.ALL})
+    @ManyToOne
     @JoinColumn(name = "partido_id")
     private Partido partido;
 
     @JsonIgnore
-    @ManyToOne(cascade = {CascadeType.ALL})
+    @ManyToOne
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 

@@ -28,6 +28,8 @@ public class Usuario {
     @Column(unique = true)
     private String email;
 
+    private int partidosAsistidos = 0;
+
     private boolean is_admin = false;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "usuario", cascade = {
@@ -35,4 +37,9 @@ public class Usuario {
     })
     private Set<Ticket> tickets;
 
+    @Override
+    public String toString() {
+        return "Usuario {" +
+                "id = " + user_id + ", nombre = " + nombre + ", email = " + email + ", is_admin = " + is_admin;
+    }
 }

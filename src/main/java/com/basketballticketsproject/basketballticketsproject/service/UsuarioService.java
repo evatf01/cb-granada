@@ -1,21 +1,27 @@
 package com.basketballticketsproject.basketballticketsproject.service;
 
+import com.basketballticketsproject.basketballticketsproject.dao.LoginUser;
+import com.basketballticketsproject.basketballticketsproject.dao.PartidoResponse;
+import com.basketballticketsproject.basketballticketsproject.entity.Partido;
 import com.basketballticketsproject.basketballticketsproject.entity.Ticket;
 import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
 import com.basketballticketsproject.basketballticketsproject.repo.TicketRepo;
 import com.basketballticketsproject.basketballticketsproject.repo.UsuarioRepo;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.regex.Pattern;
+
+import static com.basketballticketsproject.basketballticketsproject.utils.Constants.PASSWORD_REGEX;
 
 @Service
-public class UsuarioService implements UserDetailsService {
+@Slf4j
+public class UsuarioService {
 
     @Autowired
     private UsuarioRepo usuarioRepo;
@@ -26,11 +32,13 @@ public class UsuarioService implements UserDetailsService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    private static final Pattern PASSWORD_PATTERN = Pattern.compile(PASSWORD_REGEX);
+
     public Usuario getUsuarioByName(String name) {
         return usuarioRepo.findByNombre(name);
     }
 
-    public Usuario getUsuarioByEmail(String email) {
+    public Optional<Usuario> getUsuarioByEmail(String email) {
         return usuarioRepo.findByEmail(email);
     }
 
@@ -39,12 +47,20 @@ public class UsuarioService implements UserDetailsService {
                 usuario.getEmail()) || StringUtils.isEmpty(usuario.getPassword())) {
             throw new ResponseMessage("Inserte todos los datos para el registro");
         }
-        usuario.setPassword(this.passwordEncoder.encode(usuario.getPassword()));
+        if (PASSWORD_PATTERN.matcher(usuario.getPassword()).matches()) {
+            usuario.setPassword(this.passwordEncoder.encode(usuario.getPassword()));
+        } else {
+            throw new ResponseMessage("Contraseña no válida. La contraseña tiene que tener: un numero, sin espacios, minuscula, mayuscula, un caracter epecial, y minimo 8 caracteres");
+        }
         return usuarioRepo.save(usuario);
     }
 
     public List<Usuario> getAllUsers(){
         return usuarioRepo.findAll();
+    }
+
+    public List<Usuario> getAllUsersLimit(){
+        return usuarioRepo.findAllUsersLimit();
     }
 
     public Usuario modificarUsuario(final Long id, final Usuario usuarioNuevo) {
@@ -53,8 +69,12 @@ public class UsuarioService implements UserDetailsService {
         updateUser.setEmail(usuarioNuevo.getEmail());
         updateUser.setNombre(usuarioNuevo.getNombre());
         updateUser.setApellidos(usuarioNuevo.getApellidos());
+        if (usuarioNuevo.getPassword() != null && PASSWORD_PATTERN.matcher(usuarioNuevo.getPassword()).matches()) {
+            updateUser.setPassword(this.passwordEncoder.encode(usuarioNuevo.getPassword()));
+        }
         return usuarioRepo.save(updateUser);
     }
+
 
     public void borrarUsuario(Long id) {
         Usuario deleteUser = usuarioRepo.findById(id)
@@ -72,16 +92,16 @@ public class UsuarioService implements UserDetailsService {
         usuarioRepo.delete(deleteUser);
     }
 
-    public Map<String, String> loginEmployee(Usuario loginUser) {
-        Usuario user = usuarioRepo.findByEmail(loginUser.getEmail());
-        if (user != null) {
+    public LoginUser loginUser(Usuario loginUser) {
+        Optional<Usuario> user = usuarioRepo.findByEmail(loginUser.getEmail());
+        if (user.isPresent()) {
             String password = loginUser.getPassword();
-            String encodedPassword = user.getPassword();
+            String encodedPassword = user.get().getPassword();
             boolean isPwdRight = passwordEncoder.matches(password, encodedPassword);
             if (isPwdRight) {
                 Optional<Usuario> employee = usuarioRepo.findOneByEmailAndPassword(loginUser.getEmail(), encodedPassword);
                 if (employee.isPresent()) {
-                    return setUserLoginMap(employee.get());
+                    return setUserLogin(employee.get());
                 } else {
                     throw  new ResponseMessage("Fallo en el login");
                 }
@@ -93,18 +113,42 @@ public class UsuarioService implements UserDetailsService {
         }
     }
 
-    private static Map<String, String> setUserLoginMap(Usuario usuario) {
-        final Map<String, String> userLogin = new HashMap<>();
-        userLogin.put("userId", String.valueOf(usuario.getUser_id()));
-        userLogin.put("userName", String.valueOf(usuario.getNombre()));
-        userLogin.put("userApellidos", String.valueOf(usuario.getApellidos()));
-        userLogin.put("userEmail", String.valueOf(usuario.getEmail()));
-        userLogin.put("isAdmin", String.valueOf(usuario.is_admin()));
-        return userLogin;
+    private static LoginUser setUserLogin(Usuario usuario) {
+        return LoginUser.builder().user_id(usuario.getUser_id()).nombre(usuario.getNombre()).apellidos(usuario.getApellidos())
+                .email(usuario.getEmail()).isAdmin(usuario.is_admin()).build();
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return usuarioRepo.findByNombre(username);
+
+    public Usuario getUsuarioById(Long id) {
+        return usuarioRepo.findById(id).orElse(null);
+    }
+
+    public boolean checkPassword(Usuario usuario, String password) {
+        log.info("password: " + password);
+        log.info("usuario: " + usuario.getPassword());
+        return passwordEncoder.matches(password, usuario.getPassword());
+
+    }
+
+    public int getHistorialPartidosUsuarioNumerico(Long id) {
+        int numeroPartidos = 0;
+        Usuario usuario = usuarioRepo.findById(id).orElse(null);
+        if (ObjectUtils.isNotEmpty(usuario) && ObjectUtils.isNotEmpty(usuario.getTickets())){
+            numeroPartidos=  usuario.getTickets().size();
+        }
+        return numeroPartidos;
+    }
+
+    public List<PartidoResponse>  getHistorialPartidosUsuario(Long id) {
+        List<PartidoResponse> listaPartidos = new ArrayList<>();
+        Usuario usuario = usuarioRepo.findById(id).orElse(null);
+        if (ObjectUtils.isNotEmpty(usuario) && ObjectUtils.isNotEmpty(usuario.getTickets())){
+            for (Ticket ticket : usuario.getTickets()) {
+                listaPartidos.add(PartidoResponse.builder().equipoVisitante(ticket.getPartido().getEquipoVisitante())
+                        .fechaPartido(String.valueOf(ticket.getPartido().getFechaPartido()))
+                        .build());
+              }
+        }
+        return listaPartidos;
     }
 }
