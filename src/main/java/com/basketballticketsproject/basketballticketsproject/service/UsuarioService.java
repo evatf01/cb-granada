@@ -1,12 +1,14 @@
 package com.basketballticketsproject.basketballticketsproject.service;
 
-import com.basketballticketsproject.basketballticketsproject.dao.LoginUser;
-import com.basketballticketsproject.basketballticketsproject.dao.PartidoResponse;
+import com.basketballticketsproject.basketballticketsproject.dto.LoginUser;
+import com.basketballticketsproject.basketballticketsproject.dto.PartidoResponse;
 import com.basketballticketsproject.basketballticketsproject.entity.Partido;
 import com.basketballticketsproject.basketballticketsproject.entity.Ticket;
 import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
+import com.basketballticketsproject.basketballticketsproject.repo.PartidoRepo;
 import com.basketballticketsproject.basketballticketsproject.repo.TicketRepo;
 import com.basketballticketsproject.basketballticketsproject.repo.UsuarioRepo;
+import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -28,6 +30,9 @@ public class UsuarioService {
 
     @Autowired
     private TicketRepo ticketRepo;
+
+    @Autowired
+    private PartidoRepo partidoRepo;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -56,7 +61,7 @@ public class UsuarioService {
     }
 
     public List<Usuario> getAllUsers(){
-        return usuarioRepo.findAll();
+        return usuarioRepo.findAllUsers();
     }
 
     public List<Usuario> getAllUsersLimit(){
@@ -114,7 +119,7 @@ public class UsuarioService {
     }
 
     private static LoginUser setUserLogin(Usuario usuario) {
-        return LoginUser.builder().user_id(usuario.getUser_id()).nombre(usuario.getNombre()).apellidos(usuario.getApellidos())
+        return LoginUser.builder().id(usuario.getUser_id()).nombre(usuario.getNombre()).apellidos(usuario.getApellidos())
                 .email(usuario.getEmail()).isAdmin(usuario.is_admin()).build();
     }
 
@@ -127,28 +132,39 @@ public class UsuarioService {
         log.info("password: " + password);
         log.info("usuario: " + usuario.getPassword());
         return passwordEncoder.matches(password, usuario.getPassword());
-
     }
 
-    public int getHistorialPartidosUsuarioNumerico(Long id) {
-        int numeroPartidos = 0;
-        Usuario usuario = usuarioRepo.findById(id).orElse(null);
-        if (ObjectUtils.isNotEmpty(usuario) && ObjectUtils.isNotEmpty(usuario.getTickets())){
-            numeroPartidos=  usuario.getTickets().size();
+    public List<LoginUser> getHistorialPartidosUsuarioNumerico() {
+        List<Usuario> all = usuarioRepo.findAll();
+        List<LoginUser> loginUserList = new ArrayList<>();
+        Integer historialPartidos;
+        for (Usuario usuario: all) {
+            log.info("usuarios: " + usuario.toString());
+            historialPartidos = usuarioRepo.getHistorialPartidos(usuario.getUser_id());
+            if (historialPartidos == null) {
+                historialPartidos = 0;
+            }
+            loginUserList.add(LoginUser.builder()
+                    .id(usuario.getUser_id())
+                    .nombre(usuario.getNombre())
+                    .apellidos(usuario.getApellidos())
+                    .email(usuario.getApellidos())
+                    .partidosAsistidos(historialPartidos)
+                    .build());
+
         }
-        return numeroPartidos;
+        return loginUserList;
     }
 
-    public List<PartidoResponse>  getHistorialPartidosUsuario(Long id) {
-        List<PartidoResponse> listaPartidos = new ArrayList<>();
-        Usuario usuario = usuarioRepo.findById(id).orElse(null);
-        if (ObjectUtils.isNotEmpty(usuario) && ObjectUtils.isNotEmpty(usuario.getTickets())){
-            for (Ticket ticket : usuario.getTickets()) {
-                listaPartidos.add(PartidoResponse.builder().equipoVisitante(ticket.getPartido().getEquipoVisitante())
-                        .fechaPartido(String.valueOf(ticket.getPartido().getFechaPartido()))
-                        .build());
-              }
+    public List<PartidoResponse> listarPartidosUsuario (Long userId) {
+        List<PartidoResponse> partidosResponse = new ArrayList<>();
+        List<Partido> partidoList = partidoRepo.listarPartidosUsuario(userId);
+        for (Partido partido: partidoList) {
+            partidosResponse.add(PartidoResponse.builder()
+                    .equipoVisitante(partido.getEquipoVisitante())
+                    .fechaPartido(String.valueOf(partido.getFechaPartido()))
+                    .build());
         }
-        return listaPartidos;
+        return partidosResponse;
     }
 }

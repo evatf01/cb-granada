@@ -1,4 +1,4 @@
-package com.basketballticketsproject.basketballticketsproject.dao;
+package com.basketballticketsproject.basketballticketsproject.dto;
 
 import lombok.*;
 
@@ -12,6 +12,8 @@ public class PartidoResponse {
     private String fechaPartido;
 
     private String equipoVisitante;
+
+    private int entardasMultiplesMaxx = 3;
 
     @Override
     public String toString() {

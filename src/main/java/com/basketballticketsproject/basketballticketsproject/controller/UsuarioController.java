@@ -1,7 +1,7 @@
 package com.basketballticketsproject.basketballticketsproject.controller;
 
-import com.basketballticketsproject.basketballticketsproject.dao.LoginUser;
-import com.basketballticketsproject.basketballticketsproject.dao.PartidoResponse;
+import com.basketballticketsproject.basketballticketsproject.dto.LoginUser;
+import com.basketballticketsproject.basketballticketsproject.dto.PartidoResponse;
 import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
 import com.basketballticketsproject.basketballticketsproject.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -112,17 +112,20 @@ public class UsuarioController {
     }
 
     //obtener el número de partidos que ha ido el usuario
-    @GetMapping("/getHistorialPartidosUsuarioNumerico/{id}")
-    public ResponseEntity<Integer> getHistorialPartidosUsuarioNumerico(@PathVariable Long id) {
-        final int numeroPartidos = usuarioService.getHistorialPartidosUsuarioNumerico(id);
-        return new ResponseEntity<>(numeroPartidos, HttpStatus.OK);
+    @GetMapping("/getHistorialPartidosUsuario")
+    public ResponseEntity< List<LoginUser>> getHistorialPartidosUsuarioNumerico() {
+        final  List<LoginUser> list = usuarioService.getHistorialPartidosUsuarioNumerico();
+        return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
     //obtener los partidos que ha ido el usuario
-    @GetMapping("/getHistorialPartidosUsuario/{id}")
-    public ResponseEntity<List<PartidoResponse> > getHistorialPartidosUsuario(@PathVariable Long id) {
-        final List<PartidoResponse>  numeroPartidos = usuarioService.getHistorialPartidosUsuario(id);
-        return new ResponseEntity<>(numeroPartidos, HttpStatus.OK);
+    @GetMapping("/listarPartidosUsuario/{userId}")
+    public  ResponseEntity<List<PartidoResponse>> listarPartidosUsuario(@PathVariable Long userId) {
+        List<PartidoResponse> partidosIds = usuarioService.listarPartidosUsuario(userId);
+        if (!partidosIds.isEmpty()) {
+            return new ResponseEntity<>(partidosIds, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(partidosIds,HttpStatus.NO_CONTENT);
     }
 
 }

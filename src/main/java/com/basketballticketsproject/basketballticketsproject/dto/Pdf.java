@@ -1,4 +1,4 @@
-package com.basketballticketsproject.basketballticketsproject.dao;
+package com.basketballticketsproject.basketballticketsproject.dto;
 
 import lombok.*;
 

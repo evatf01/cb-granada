@@ -21,6 +21,7 @@ public class Ticket {
     private Long id;
 
     @JsonIgnore
+    @Column(unique = true)
     private String path;
 
     private boolean entregada;

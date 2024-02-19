@@ -1,33 +1,20 @@
 package com.basketballticketsproject.basketballticketsproject.controller;
 
-import com.aspose.pdf.internal.imaging.internal.Exceptions.IO.FileNotFoundException;
-import com.basketballticketsproject.basketballticketsproject.dao.Pdf;
-import com.basketballticketsproject.basketballticketsproject.entity.Partido;
+import com.basketballticketsproject.basketballticketsproject.dto.FileInfo;
 import com.basketballticketsproject.basketballticketsproject.entity.Ticket;
 import com.basketballticketsproject.basketballticketsproject.service.FileStorageService;
 import com.basketballticketsproject.basketballticketsproject.service.TicketService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.Objects;
 
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
@@ -59,9 +46,9 @@ public class TicketController {
 
 
     @GetMapping("/descargarEntrada/{userId}/{partidoId}")
-    public ResponseEntity< byte[]> getTicketPdf(@PathVariable Long userId, @PathVariable Long partidoId) {
-        ResponseEntity< byte[]> response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        byte[] inputStreamResource = ticketService.getTicketPdf(userId, partidoId);
+    public ResponseEntity<InputStreamResource> getTicketPdf(@PathVariable Long userId, @PathVariable Long partidoId) {
+        ResponseEntity<InputStreamResource> response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        InputStreamResource inputStreamResource= ticketService.getTicketPdf(userId, partidoId);
 
         if(inputStreamResource != null) {
             HttpHeaders headers = new HttpHeaders();
@@ -74,19 +61,29 @@ public class TicketController {
 
 
     @GetMapping("/descargarEntradasAdicionales/{userId}/{partidoId}/{numEntradas}")
-    public ResponseEntity < byte[] > getTicketsAdicionalesPdf(@PathVariable Long userId, @PathVariable Long partidoId,
+    public ResponseEntity < List<FileInfo> > getTicketsAdicionalesPdf(@PathVariable Long userId, @PathVariable Long partidoId,
                                                                         @PathVariable int numEntradas) {
-        ResponseEntity< byte[]> response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        byte[] inputStreamResource = ticketService.getTicketsAdicionalesPdf(userId, partidoId, numEntradas);
+        ResponseEntity<  List<FileInfo> > response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        List<FileInfo>  inputStreamResource = ticketService.getTicketsAdicionalesPdf(userId, partidoId, numEntradas);
 
         if(inputStreamResource != null) {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_PDF);
-            response = new ResponseEntity<>(inputStreamResource, headers, HttpStatus.OK);
+            response = new ResponseEntity<>(inputStreamResource, HttpStatus.OK);
         }
+        return response;
+    }
+
+
+    @GetMapping("/getPdfPath/{partidoId}")
+    public ResponseEntity < TicketDTO > getPdfPath( @PathVariable Long partidoId) {
+        ResponseEntity< TicketDTO> response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        TicketDTO path = ticketService.getPdfPath(partidoId);
+
+        response = new ResponseEntity<>(path, HttpStatus.OK);
+
 
         return response;
     }
+
 
 
 
@@ -136,5 +133,22 @@ public class TicketController {
         return ticketService.getTickets();
     }
 
+
+
+/*
+    @GetMapping("/files")
+    public ResponseEntity<List<FileInfo>> getListFiles() {
+        List<FileInfo> fileInfos = storageService.loadAll().map(path -> {
+            String filename = path.getFileName().toString();
+            String url = MvcUriComponentsBuilder
+                    .fromMethodName(FilesController.class, "getFile", path.getFileName().toString()).build().toString();
+
+            return new FileInfo(filename, url);
+        }).collect(Collectors.toList());
+
+        return ResponseEntity.status(HttpStatus.OK).body(fileInfos);
+    }
+
+ */
 
 }

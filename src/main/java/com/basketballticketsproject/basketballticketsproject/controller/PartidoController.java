@@ -1,6 +1,7 @@
 package com.basketballticketsproject.basketballticketsproject.controller;
 
 
+import com.basketballticketsproject.basketballticketsproject.dto.PartidoResponse;
 import com.basketballticketsproject.basketballticketsproject.entity.Partido;
 import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
 import com.basketballticketsproject.basketballticketsproject.service.FileStorageService;
@@ -161,4 +162,15 @@ public class PartidoController {
         }
         return new ResponseEntity<>(partidosIds,HttpStatus.NO_CONTENT);
     }
+
+    @GetMapping("/getPartidosAnteriores")
+    public  ResponseEntity<Set<Partido>> getPartidosAnteriores() {
+        Set<Partido> partidosIds = partidoService.getPartidosAnteriores();
+        if (!partidosIds.isEmpty()) {
+            return new ResponseEntity<>(partidosIds, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(partidosIds,HttpStatus.NO_CONTENT);
+    }
+
+
 }

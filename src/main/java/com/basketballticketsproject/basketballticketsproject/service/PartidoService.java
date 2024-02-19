@@ -1,5 +1,6 @@
 package com.basketballticketsproject.basketballticketsproject.service;
 
+import com.basketballticketsproject.basketballticketsproject.dto.PartidoResponse;
 import com.basketballticketsproject.basketballticketsproject.entity.Partido;
 import com.basketballticketsproject.basketballticketsproject.entity.Ticket;
 import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -92,5 +94,14 @@ public class PartidoService {
         updatePartido.setFechaPartido(partidoNuevo.getFechaPartido());
         updatePartido.setFechaPublicacion(partidoNuevo.getFechaPublicacion());
         return partidoRepo.save(updatePartido);
+    }
+
+
+    public Set<Partido> getPartidosAnteriores() {
+        LocalDateTime date = LocalDateTime.now();
+        DateTimeFormatter formatters = DateTimeFormatter.ofPattern(DATE_FORMATTER);
+        String text = date.format(formatters);
+        LocalDateTime parsedDate = LocalDateTime.parse(text, formatters);
+        return partidoRepo.getPartidosAnteriores(parsedDate);
     }
 }

@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -20,4 +21,11 @@ public interface PartidoRepo extends JpaRepository<Partido, Long> {
     Set<Long> getMisPartidosIds(Long userId);
 
     Optional<Partido> findByTickets(Ticket ticket);
+
+    @Query (value="SELECT p.* FROM partido p JOIN ticket t ON p.id = t.partido_id WHERE t.usuario_id = ?1 group by p.id;",
+            nativeQuery = true)
+    List<Partido> listarPartidosUsuario(Long id);
+
+    @Query(value = "SELECT * FROM partido where ?1 > fecha_partido  ORDER BY fecha_partido", nativeQuery = true)
+    Set<Partido> getPartidosAnteriores(LocalDateTime parsedDate);
 }

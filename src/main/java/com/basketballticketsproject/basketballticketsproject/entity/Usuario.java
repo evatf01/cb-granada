@@ -28,6 +28,7 @@ public class Usuario {
     @Column(unique = true)
     private String email;
 
+    @Column(name = "partidosAsistidos")
     private int partidosAsistidos = 0;
 
     private boolean is_admin = false;
