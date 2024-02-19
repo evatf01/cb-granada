@@ -6,15 +6,18 @@ import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
 import com.basketballticketsproject.basketballticketsproject.repo.PartidoRepo;
 import com.basketballticketsproject.basketballticketsproject.repo.TicketRepo;
 import com.basketballticketsproject.basketballticketsproject.repo.UsuarioRepo;
-import jakarta.mail.Part;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
-import java.time.LocalDate;
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+
+import java.io.InputStream;
+import java.io.ObjectOutputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -31,9 +34,6 @@ public class TicketService {
     @Autowired
     private TicketRepo ticketRepo;
 
-    @Autowired
-    private FileStorageService fileStorageService;
-
 
     public List<Ticket> getTickets() {return ticketRepo.findAll();}
 
@@ -47,33 +47,21 @@ public class TicketService {
     }
 
 
-    public Boolean saveUsuarioSorteo(final Long idUser, final Long idPartido) {
+    public Boolean saveUsuarioPartido(final Long idUser, final Long idPartido) {
         final Usuario usuario = usuarioRepo.findById(idUser).orElse(null);
         final Partido partido = partidoRepo.findById(idPartido).orElse(null);
         final Optional<Ticket> oneByUsuarioAndPartido = ticketRepo.findOneByUsuarioAndPartido(usuario, partido);
-
-        //Optional<Ticket> ticketToSave;
         if (partido != null  && !ObjectUtils.isEmpty(usuario) && !oneByUsuarioAndPartido.isPresent()) {
-
             //obtener una entrada que no esté asignada
             final Optional<Ticket> ticketNoEntregado = ticketRepo.findTicketNoEntregado(idPartido);
-            /*
-            ticketToSave = partido.getTickets().stream().filter(ticket ->
-                    !ticket.isEntregada()).findFirst();
-
-             */
             if (ticketNoEntregado.isPresent() ) {
-                //guardar en la tabla ticket el usuario con la entrada en entregada true
-                ticketNoEntregado.get().setUsuario(usuario);
-                ticketNoEntregado.get().setEntregada(true);
-                usuario.getTickets().add(ticketNoEntregado.get());
-
-                usuarioRepo.save(usuario);
-                ticketRepo.save(ticketNoEntregado.get());
-
+                this.asignarEntrada(ticketNoEntregado.get(), usuario);
+                //comprobamos si nos quedamos sin entradas
+                if (ticketNoEntregado.get().getPartido().getStockEntradas() <= 0 ){
+                    return false;
+                }
                 return true;
             } else {
-                this.setStockEntradasFalse(partido);
                 log.info("Ya no quedan entradas disponibles");
                 return false;
             }
@@ -83,47 +71,101 @@ public class TicketService {
         }
     }
 
-    public void deleteUsuarioFromSorteo(final Long userID, final Long partidoId) {
-        final Optional<Usuario> usuario = usuarioRepo.findById(userID);
-        final Optional<Partido> partido = partidoRepo.findById(partidoId);
-
-        if (usuario.isPresent() && partido.isPresent()) {
-            //obtener la entrada del usuario de ese partido
-            final Optional<Ticket> ticketUsuario = usuario.get().getTickets().stream().filter(ticket ->
-                    ticket.getPartido().equals(partido.get())).findFirst();
-            if (ticketUsuario.isPresent()) {
-                //se le desasigna la entrada y se vuelve a poner entragada a false
-                usuario.get().getTickets().remove(ticketUsuario.get());
-                ticketUsuario.get().setUsuario(null);
-                ticketUsuario.get().setEntregada(false);
-                ticketRepo.save(ticketUsuario.get());
-            }
-            usuarioRepo.save(usuario.get());
+    private void asignarEntrada(Ticket ticketNoEntregado, Usuario usuario) {
+        ticketNoEntregado.setUsuario(usuario);
+        ticketNoEntregado.setEntregada(true);
+        usuario.getTickets().add(ticketNoEntregado);
+        usuario.setPartidosAsistidos(usuario.getPartidosAsistidos() + 1);
+        if (ticketNoEntregado.getPartido().getStockEntradas() > 0){
+            ticketNoEntregado.getPartido().setStockEntradas(
+                    ticketNoEntregado.getPartido().getStockEntradas() - 1);
         }
+        usuarioRepo.save(usuario);
+        ticketRepo.save(ticketNoEntregado);
     }
 
-    public String enviarEntrada(final Long userID, final Long partidoId){
+    public void deleteUsuarioFromPartido(final Long userID, final Long partidoId) {
+        Set<Ticket> ticketsUsuario = ticketRepo.findTicketUsuario(userID, partidoId);
+            if (!CollectionUtils.isEmpty(ticketsUsuario)) {
+                for (Ticket ticket : ticketsUsuario){
+                    if (ticket.getUsuario().getPartidosAsistidos() > 0 ){
+                        ticket.getUsuario().setPartidosAsistidos(ticket.getUsuario().getPartidosAsistidos() -1 );
+                    }
+                    ticket.getUsuario().getTickets().remove(ticket);
+                    usuarioRepo.save(ticket.getUsuario());
+                    ticket.setUsuario(null);
+                    ticket.setEntregada(false);
+                    //en partido nos aseguramos que indica que sigue habiendo entradas
+                    ticket.getPartido().setStockEntradas(ticket.getPartido().getStockEntradas() + 1);
+                    ticketRepo.save(ticket);
+                    partidoRepo.save(ticket.getPartido());
+                }
+            }
+    }
 
-       final Usuario usuario = usuarioRepo.findById(userID).orElse(null);
-       final Partido partido = partidoRepo.findById(partidoId).orElse(null);
+    /*
+    public List<String> enviarEntrada(final Long userID, final Long partidoId, final int numEntradas) {
+        List<String> listEntradas = new ArrayList<>();
+        //cuando el usuario pida más entradas, se le pasa por parámetro el número de entradas que pide
+        if (numEntradas != 0) {
+            Set<Ticket> ticketUsuario = ticketRepo.findMasTicketsNoEntregados(partidoId, numEntradas);
+            for (Ticket ticket : ticketUsuario) {
+                listEntradas.add(ticket.getPdfBase64());
+            }
+            return listEntradas;
+        }
+
+        final Usuario usuario = usuarioRepo.findById(userID).orElse(null);
+        final Partido partido = partidoRepo.findById(partidoId).orElse(null);
 
         final Set<Usuario> usuariosSorteo = this.getUsuariosSorteo(partidoId);
-
-        byte[] entrada;
-        String pdfBase64 = StringUtils.EMPTY;
         //comprobar que el usuario está apuntado al partido
-        if(usuariosSorteo.contains(usuario) && usuario != null) {
+        if (usuariosSorteo.contains(usuario) && usuario != null) {
             ///obtener la entrada de ese usario para ese partido
             final Optional<Ticket> entradaUsario = ticketRepo.findOneByUsuarioAndPartido(usuario, partido);
-            if (entradaUsario.isPresent()) {
-                pdfBase64 = entradaUsario.get().getPdfBase64();
-            } else {
-                throw new ResponseMessage("No se encuentra la entrada para este usuario y este partido");
-            }
-        }else {
+            entradaUsario.ifPresent(ticket -> listEntradas.add(ticket.getPdfBase64()));
+        } else {
             throw new ResponseMessage("No estas apuntado a este partido");
         }
-        return pdfBase64;
+        return listEntradas;
+    }
+
+     */
+
+
+    /*
+    public String getTicketPath(Long userId, Long partidoId) {
+        return ticketRepo.findTicketPath(userId, partidoId);
+    }
+
+     */
+
+    public byte[] getTicketPdf(Long userId, Long partidoId) {
+        List<String> path = ticketRepo.findTicketPath(userId, partidoId);
+        //List<InputStreamResource> isr = new ArrayList<>();
+        //InputStreamResource inputStreamResource = null;
+        List<byte[]> listBytes = new ArrayList<>();
+        byte[] bytesPfd = new byte[0];
+        try {
+            for (String s : path) {
+                FileInputStream fis = new FileInputStream(s);
+                byte[] array  = fis.readAllBytes();
+               //inputStreamResource = new InputStreamResource(fis);
+                //isr.add(inputStreamResource);
+                listBytes.add(array);
+            }
+
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            ObjectOutputStream obj;
+            obj = new ObjectOutputStream(output);
+            obj.writeObject(listBytes);
+            bytesPfd = output.toByteArray();
+        } catch(Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return bytesPfd;
+
     }
 
     public List<Ticket> getEntradasNoAsignadas(Long id) {
@@ -132,10 +174,6 @@ public class TicketService {
         return  partidoFecha.getTickets().stream().filter(partido -> !partido.isEntregada()).toList();
     }
 
-    private void setStockEntradasFalse(Partido partido) {
-        partido.setStockEntradas(false);
-        partidoRepo.save(partido);
-    }
 
     public void borrarTicket(Long id) {
         Ticket ticket = ticketRepo.findById(id).orElseThrow(() ->
@@ -154,4 +192,30 @@ public class TicketService {
         ticket.setPartido(null);
         ticketRepo.delete(ticket);
     }
+
+    public int contadorEntradasRestantes(Long idPartido) {
+        return ticketRepo.findEntradasRestantes(idPartido);
+    }
+
+    public int getNumeroUsuariosPartido(Long partidoId) {
+        return this.getUsuariosSorteo(partidoId).size();
+    }
+
+
+    public byte[]  getTicketsAdicionalesPdf(Long userId, Long partidoId, int numEntradas) {
+        final Usuario usuario = usuarioRepo.findById(userId).orElse(null);
+        final Set<Ticket> ticketsNoEntregados = ticketRepo.findMasTicketsNoEntregados(partidoId, numEntradas);
+        if (!CollectionUtils.isEmpty(ticketsNoEntregados) ) {
+            for (Ticket ticket : ticketsNoEntregados) {
+                this.asignarEntrada(ticket, usuario);
+            }
+            return this.getTicketPdf(userId, partidoId);
+
+        } else {
+            log.info("Ya no quedan entradas disponibles");
+            return  null;
+        }
+    }
+
+
 }

@@ -1,10 +1,12 @@
 package com.basketballticketsproject.basketballticketsproject.service;
 
+import com.aspose.pdf.Document;
 import com.basketballticketsproject.basketballticketsproject.entity.Partido;
 import com.basketballticketsproject.basketballticketsproject.entity.Ticket;
 import com.basketballticketsproject.basketballticketsproject.repo.PartidoRepo;
 import com.basketballticketsproject.basketballticketsproject.repo.TicketRepo;
-import com.basketballticketsproject.basketballticketsproject.repo.UsuarioRepo;
+import com.basketballticketsproject.basketballticketsproject.utils.Constants;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.pdfbox.multipdf.Splitter;
@@ -13,11 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -34,58 +34,62 @@ public class FileStorageService {
     @Autowired
     private TicketRepo ticketRepo;
 
-    @Autowired
-    private UsuarioRepo usuarioRepo;
-
-    public Long storeFile(final File convFile, final String tituloPartido, final String fechaPartido) throws IOException {
+    public String storeFile(final File entradas, Partido partido) throws IOException {
         //splittear el pdf en varios
-        final PDDocument document = PDDocument.load(convFile);
+        final PDDocument document = PDDocument.load(entradas);
         final Splitter splitter = new Splitter();
         final List<PDDocument> pages = splitter.split(document);
         final Iterator<PDDocument> iterator = pages.listIterator();
 
-        //formatear el formato de la fecha
-        final DateTimeFormatter dtf = DateTimeFormatter.ofPattern(DATE_FORMATTER);
-        LocalDateTime fecha = LocalDateTime.parse(fechaPartido, dtf);
-        //crear partido con el nombre y la fecha
-        final Partido partido = new Partido();
-        partido.setNombrePartido(tituloPartido);
-        partido.setFechaPartido(fecha);
-
         final Set<Ticket> ticketSet = new HashSet<>();
 
         //comprobar si no se ha creado ese partido
-        final Partido byFechaPartido = partidoRepo.findByFechaPartido(fecha);
+        final Partido byFechaPartido = partidoRepo.findByFechaPartido(partido.getFechaPartido());
 
         if (ObjectUtils.isEmpty(byFechaPartido)) {
+            partido.setStockEntradas(NUM_ENTRADAS);
+            partidoRepo.save(partido);
+            // En ../Entradas están las entradas de la app (ENTRADAS_PATH). Cada partido tiene una subcarpeta con un nombre único y dentro sus entradas
+            // Entradas/[fechaPartido]_Granada-[EquipoVisitante]/entrada[i].pdf
+            LocalDateTime fecha = partido.getFechaPartido();
+            String fechaStr = fecha.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            String carpetaDestino = Constants.ENTRADAS_PATH+"/"+fechaStr+"_"+"Granada-"+partido.getEquipoVisitante();
+            new File(carpetaDestino).mkdirs();
+            
             //recorrer todas las paginas del pdf
+            int numStock = 0;
             for (int i = 1; iterator.hasNext(); i++) {
-
                 final Ticket ticket = new Ticket();
-                final PDDocument pd = iterator.next();
-                final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                pd.save(baos);
-
-                //encodear el pdf en base64
-                final String base64String = Base64.getEncoder().encodeToString(baos.toByteArray());
-                ticket.setPdfBase64(base64String);
-                ticket.setEntrada(String.valueOf(i));
+                ticket.setPath(carpetaDestino+"/entrada"+i+".pdf");
                 ticket.setPartido(partido);
                 ticketSet.add(ticket);
                 ticketRepo.save(ticket);
 
-                pd.close();
+                final PDDocument entradaDoc = iterator.next();
+                //Se crea el pdf de la entrada en su carpeta
+                entradaDoc.save(carpetaDestino + "/entrada"+i+".pdf"); 
+                entradaDoc.close();
+                //Optimizamos la entrada individual que sigue pesando igual que el documento original con todas las entradas
+                Document entradaOptimizada = new Document(carpetaDestino+"/entrada"+i+".pdf");
+                entradaOptimizada.optimizeResources();
+                //borramos la entrada sin optimizar
+                new File(carpetaDestino + "/entrada"+i+".pdf").delete();
+                //guardamos la entrada ya optimizada
+                entradaOptimizada.save(carpetaDestino +"/entrada"+i+".pdf");
+                numStock = i;
+
             }
+            partido.setStockEntradas(numStock);
             partido.setTickets(ticketSet);
             partidoRepo.save(partido);
-
         }
         document.close();
-        return partido.getId();
+        return "done";
     }
 
-
-    public File getFileBase(final String base64) {
+   
+    public File getFileBase(final String base1, final String base2) {
+        String base64 = base1 + base2;
     	final File file = new File(NOMBRE_PDF_ENTRADAS);
 		try {
 			FileOutputStream fos = new FileOutputStream(file);
@@ -100,11 +104,11 @@ public class FileStorageService {
 		return file;
     }
 
-    public  byte[] getFileByNumber(String fileName)  {
-        final Ticket byEntrada = ticketRepo.findByEntrada(fileName);
-        System.out.println(byEntrada.getPdfBase64());
-        return decodeBase64ToPdf(byEntrada.getPdfBase64());
-    }
+    // public  byte[] getFileByNumber(String fileName)  {
+    //     final Ticket byEntrada = ticketRepo.findByEntrada(fileName);
+    //     System.out.println(byEntrada.getPdfBase64());
+    //     return decodeBase64ToPdf(byEntrada.getPdfBase64());
+    // }
 
     public static byte[] decodeBase64ToPdf(String base64)  {
         return Base64.getDecoder().decode(base64);
