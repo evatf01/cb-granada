@@ -4,7 +4,6 @@ import com.basketballticketsproject.basketballticketsproject.dto.FileInfo;
 import com.basketballticketsproject.basketballticketsproject.entity.Ticket;
 import com.basketballticketsproject.basketballticketsproject.service.FileStorageService;
 import com.basketballticketsproject.basketballticketsproject.service.TicketService;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -73,20 +72,6 @@ public class TicketController {
     }
 
 
-    @GetMapping("/getPdfPath/{partidoId}")
-    public ResponseEntity < TicketDTO > getPdfPath( @PathVariable Long partidoId) {
-        ResponseEntity< TicketDTO> response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        TicketDTO path = ticketService.getPdfPath(partidoId);
-
-        response = new ResponseEntity<>(path, HttpStatus.OK);
-
-
-        return response;
-    }
-
-
-
-
 
     //enviar entrada al usuario
     // @GetMapping("/enviarEntrada/{userID}/{partidoId}")
@@ -134,21 +119,5 @@ public class TicketController {
     }
 
 
-
-/*
-    @GetMapping("/files")
-    public ResponseEntity<List<FileInfo>> getListFiles() {
-        List<FileInfo> fileInfos = storageService.loadAll().map(path -> {
-            String filename = path.getFileName().toString();
-            String url = MvcUriComponentsBuilder
-                    .fromMethodName(FilesController.class, "getFile", path.getFileName().toString()).build().toString();
-
-            return new FileInfo(filename, url);
-        }).collect(Collectors.toList());
-
-        return ResponseEntity.status(HttpStatus.OK).body(fileInfos);
-    }
-
- */
 
 }
