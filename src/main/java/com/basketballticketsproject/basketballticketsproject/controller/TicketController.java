@@ -56,10 +56,14 @@ public class TicketController {
     }
 
     @GetMapping("/descargarEntradasAdicionales/{userId}/{partidoId}/{numEntradas}")
-    public void asignarMasEntradas(@PathVariable Long userId, @PathVariable Long partidoId,
+    public ResponseEntity<Boolean> asignarMasEntradas(@PathVariable Long userId, @PathVariable Long partidoId,
                                                                          @PathVariable int numEntradas) {
-        ticketService.asignarMasEntradas(userId, partidoId, numEntradas);
-
+        if(ticketService.asignarMasEntradas(userId, partidoId, numEntradas)) {
+            return new ResponseEntity<>(true, HttpStatus.OK);
+        }
+        else {
+            return new ResponseEntity<>(false, HttpStatus.NO_CONTENT);
+        }
     }
 
 

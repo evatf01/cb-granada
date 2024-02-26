@@ -210,7 +210,7 @@ public class TicketService {
     }
 
 
-    public void asignarMasEntradas(Long userId, Long partidoId, int numEntradas) {
+    public boolean asignarMasEntradas(Long userId, Long partidoId, int numEntradas) {
         final Usuario usuario = usuarioRepo.findById(userId).orElse(null);
         final Set<Ticket> ticketsNoEntregados = ticketRepo.findMasTicketsNoEntregados(partidoId, numEntradas);
 
@@ -219,6 +219,9 @@ public class TicketService {
                 log.info("helooooooo");
                 this.asignarEntrada(ticket, usuario);
             }
+            return true;
+        } else {
+            return false;
         }
     }
 
