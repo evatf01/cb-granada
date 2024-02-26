@@ -1,7 +1,7 @@
 package com.basketballticketsproject.basketballticketsproject.controller;
 
-import com.basketballticketsproject.basketballticketsproject.dto.LoginUser;
-import com.basketballticketsproject.basketballticketsproject.dto.PartidoResponse;
+import com.basketballticketsproject.basketballticketsproject.dto.LoginUserDTO;
+import com.basketballticketsproject.basketballticketsproject.dto.PartidoResponseDTO;
 import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
 import com.basketballticketsproject.basketballticketsproject.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,8 +58,8 @@ public class UsuarioController {
 
     //login
     @PostMapping(path = "/login")
-    public ResponseEntity<LoginUser> loginUser(@RequestBody Usuario usuario) {
-        final LoginUser login = usuarioService.loginUser(usuario);
+    public ResponseEntity<LoginUserDTO> loginUser(@RequestBody Usuario usuario) {
+        final LoginUserDTO login = usuarioService.loginUser(usuario);
         return ResponseEntity.ok(login);
     }
 
@@ -113,15 +113,15 @@ public class UsuarioController {
 
     //obtener el número de partidos que ha ido el usuario
     @GetMapping("/getHistorialPartidosUsuario")
-    public ResponseEntity< List<LoginUser>> getHistorialPartidosUsuarioNumerico() {
-        final  List<LoginUser> list = usuarioService.getHistorialPartidosUsuarioNumerico();
+    public ResponseEntity< List<LoginUserDTO>> getHistorialPartidosUsuarioNumerico() {
+        final  List<LoginUserDTO> list = usuarioService.getHistorialPartidosUsuarioNumerico();
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
     //obtener los partidos que ha ido el usuario
     @GetMapping("/listarPartidosUsuario/{userId}")
-    public  ResponseEntity<List<PartidoResponse>> listarPartidosUsuario(@PathVariable Long userId) {
-        List<PartidoResponse> partidosIds = usuarioService.listarPartidosUsuario(userId);
+    public  ResponseEntity<List<PartidoResponseDTO>> listarPartidosUsuario(@PathVariable Long userId) {
+        List<PartidoResponseDTO> partidosIds = usuarioService.listarPartidosUsuario(userId);
         if (!partidosIds.isEmpty()) {
             return new ResponseEntity<>(partidosIds, HttpStatus.OK);
         }

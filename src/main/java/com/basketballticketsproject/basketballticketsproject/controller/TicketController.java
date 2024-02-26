@@ -1,6 +1,6 @@
 package com.basketballticketsproject.basketballticketsproject.controller;
 
-import com.basketballticketsproject.basketballticketsproject.dto.FileInfo;
+import com.basketballticketsproject.basketballticketsproject.dto.FileInfoDTO;
 import com.basketballticketsproject.basketballticketsproject.entity.Ticket;
 import com.basketballticketsproject.basketballticketsproject.service.FileStorageService;
 import com.basketballticketsproject.basketballticketsproject.service.TicketService;
@@ -43,32 +43,23 @@ public class TicketController {
     // }
 
 
-
     @GetMapping("/descargarEntrada/{userId}/{partidoId}")
-    public ResponseEntity<InputStreamResource> getTicketPdf(@PathVariable Long userId, @PathVariable Long partidoId) {
-        ResponseEntity<InputStreamResource> response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        InputStreamResource inputStreamResource= ticketService.getTicketPdf(userId, partidoId);
+    public ResponseEntity<List<FileInfoDTO>> getTicketPdf(@PathVariable Long userId, @PathVariable Long partidoId) {
+        ResponseEntity<List<FileInfoDTO>> response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        List<FileInfoDTO> inputStreamResource= ticketService.getTicketPdf(userId, partidoId);
 
         if(inputStreamResource != null) {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_PDF);
-            response = new ResponseEntity<>(inputStreamResource, headers, HttpStatus.OK);
+            response = new ResponseEntity<>(inputStreamResource, HttpStatus.OK);
         }
 
         return response;
     }
 
-
     @GetMapping("/descargarEntradasAdicionales/{userId}/{partidoId}/{numEntradas}")
-    public ResponseEntity < List<FileInfo> > getTicketsAdicionalesPdf(@PathVariable Long userId, @PathVariable Long partidoId,
-                                                                        @PathVariable int numEntradas) {
-        ResponseEntity<  List<FileInfo> > response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        List<FileInfo>  inputStreamResource = ticketService.getTicketsAdicionalesPdf(userId, partidoId, numEntradas);
+    public void asignarMasEntradas(@PathVariable Long userId, @PathVariable Long partidoId,
+                                                                         @PathVariable int numEntradas) {
+        ticketService.asignarMasEntradas(userId, partidoId, numEntradas);
 
-        if(inputStreamResource != null) {
-            response = new ResponseEntity<>(inputStreamResource, HttpStatus.OK);
-        }
-        return response;
     }
 
 

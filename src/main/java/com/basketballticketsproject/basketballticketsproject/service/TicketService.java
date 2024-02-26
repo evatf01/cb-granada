@@ -1,6 +1,6 @@
 package com.basketballticketsproject.basketballticketsproject.service;
 
-import com.basketballticketsproject.basketballticketsproject.dto.FileInfo;
+import com.basketballticketsproject.basketballticketsproject.dto.FileInfoDTO;
 import com.basketballticketsproject.basketballticketsproject.entity.Partido;
 import com.basketballticketsproject.basketballticketsproject.entity.Ticket;
 import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
@@ -10,15 +10,12 @@ import com.basketballticketsproject.basketballticketsproject.repo.UsuarioRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 import java.io.*;
 
-import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -108,7 +105,7 @@ public class TicketService {
             }
     }
 
-    /*
+/*
     public List<String> enviarEntrada(final Long userID, final Long partidoId, final int numEntradas) {
         List<String> listEntradas = new ArrayList<>();
         //cuando el usuario pida más entradas, se le pasa por parámetro el número de entradas que pide
@@ -134,8 +131,8 @@ public class TicketService {
         }
         return listEntradas;
     }
+*/
 
-     */
 
 
     /*
@@ -145,16 +142,21 @@ public class TicketService {
 
      */
 
-    public InputStreamResource getTicketPdf(Long userId, Long partidoId) {
-        String path = ticketRepo.findTicketPath(userId, partidoId);
-        InputStreamResource inputStreamResource = null;
-        try {
-            FileInputStream fileInputStream = new FileInputStream(path);
-            inputStreamResource = new InputStreamResource(fileInputStream);
+    public List<FileInfoDTO> getTicketPdf(Long userId, Long partidoId) {
+        List<FileInfoDTO> fileInfoList = new ArrayList<>();
+        try{
+            List<String> path = ticketRepo.findTicketPath(userId, partidoId);
+            for(String s : path) {
+                FileInfoDTO fileInfo = new FileInfoDTO();
+                FileInputStream fileInputStream = new FileInputStream(s);
+                InputStreamResource inputStreamResource = new InputStreamResource(fileInputStream);
+                fileInfo.setData(inputStreamResource.getInputStream().readAllBytes());
+                fileInfoList.add(fileInfo);
+            }
         } catch(Exception ex) {
             ex.printStackTrace();
         }
-        return inputStreamResource;
+        return fileInfoList;
     }
 
     public List<Ticket> getEntradasNoAsignadas(Long id) {
@@ -162,7 +164,6 @@ public class TicketService {
                 new IllegalStateException("El partido con este Id no existe: " + id));
         return  partidoFecha.getTickets().stream().filter(partido -> !partido.isEntregada()).toList();
     }
-
 
     public void borrarTicket(Long id) {
         Ticket ticket = ticketRepo.findById(id).orElseThrow(() ->
@@ -191,49 +192,34 @@ public class TicketService {
     }
 
 
-    public  List<FileInfo>   getTicketsAdicionalesPdf(Long userId, Long partidoId, int numEntradas)  {
-        final Usuario usuario = usuarioRepo.findById(userId).orElse(null);
-        final Set<Ticket> ticketsNoEntregados = ticketRepo.findMasTicketsNoEntregados(partidoId, numEntradas);
-        List<FileInfo> fileInfoList = new ArrayList<>();
-        if (!CollectionUtils.isEmpty(ticketsNoEntregados) ) {
-            try{
-                for (Ticket ticket : ticketsNoEntregados) {
-                    this.asignarEntrada(ticket, usuario);
-                  FileInfo fileInfo = new FileInfo();
-                  fileInfo.setFileName(ticket.getPath());
-                  FileInputStream fileInputStream = new FileInputStream(ticket.getPath());
-                  InputStreamResource inputStreamResource = new InputStreamResource(fileInputStream);
-                  fileInfo.setData(inputStreamResource.getInputStream().readAllBytes());
-                  fileInfoList.add(fileInfo);
-                }
-            } catch(Exception ex) {
-                ex.printStackTrace();
+    public  List<FileInfoDTO> getTicketsAdicionalesPdf(Long userId, Long partidoId, int numEntradas)  {
+        List<FileInfoDTO> fileInfoList = new ArrayList<>();
+       try{
+            List<String> path = ticketRepo.findTicketPath(userId, partidoId);
+            for(String s : path) {
+                FileInfoDTO fileInfo = new FileInfoDTO();
+                FileInputStream fileInputStream = new FileInputStream(s);
+                InputStreamResource inputStreamResource = new InputStreamResource(fileInputStream);
+                fileInfo.setData(inputStreamResource.getInputStream().readAllBytes());
+                fileInfoList.add(fileInfo);
             }
-        } else {
-            log.info("Ya no quedan entradas disponibles");
-            return  null;
+        } catch(Exception ex) {
+            ex.printStackTrace();
         }
         return fileInfoList;
     }
 
 
+    public void asignarMasEntradas(Long userId, Long partidoId, int numEntradas) {
+        final Usuario usuario = usuarioRepo.findById(userId).orElse(null);
+        final Set<Ticket> ticketsNoEntregados = ticketRepo.findMasTicketsNoEntregados(partidoId, numEntradas);
 
-
-    public Resource load(String filename) {
-        try {
-            Path file = root.resolve(filename);
-            Resource resource = new UrlResource(file.toUri());
-
-            if (resource.exists() || resource.isReadable()) {
-                return resource;
-            } else {
-                throw new RuntimeException("Could not read the file!");
+        if (!CollectionUtils.isEmpty(ticketsNoEntregados)) {
+            for (Ticket ticket : ticketsNoEntregados) {
+                log.info("helooooooo");
+                this.asignarEntrada(ticket, usuario);
             }
-        } catch (MalformedURLException e) {
-            throw new RuntimeException("Error: " + e.getMessage());
         }
     }
-
-
 
 }

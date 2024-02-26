@@ -11,7 +11,7 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface PartidoRepo extends JpaRepository<Partido, Long> {
-
+ 
     Partido findByFechaPartido(LocalDateTime fecha);
 
     @Query(value = "SELECT * FROM partido where ?1 < fecha_partido && ?1 >= fecha_publicacion ORDER BY fecha_partido", nativeQuery = true)

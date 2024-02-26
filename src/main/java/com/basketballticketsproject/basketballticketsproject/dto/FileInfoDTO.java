@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class FileInfo {
+public class FileInfoDTO {
     private String fileName;
     private byte[] data;
 

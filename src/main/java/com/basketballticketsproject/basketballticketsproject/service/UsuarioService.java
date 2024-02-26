@@ -1,16 +1,14 @@
 package com.basketballticketsproject.basketballticketsproject.service;
 
-import com.basketballticketsproject.basketballticketsproject.dto.LoginUser;
-import com.basketballticketsproject.basketballticketsproject.dto.PartidoResponse;
+import com.basketballticketsproject.basketballticketsproject.dto.LoginUserDTO;
+import com.basketballticketsproject.basketballticketsproject.dto.PartidoResponseDTO;
 import com.basketballticketsproject.basketballticketsproject.entity.Partido;
 import com.basketballticketsproject.basketballticketsproject.entity.Ticket;
 import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
 import com.basketballticketsproject.basketballticketsproject.repo.PartidoRepo;
 import com.basketballticketsproject.basketballticketsproject.repo.TicketRepo;
 import com.basketballticketsproject.basketballticketsproject.repo.UsuarioRepo;
-import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -97,7 +95,7 @@ public class UsuarioService {
         usuarioRepo.delete(deleteUser);
     }
 
-    public LoginUser loginUser(Usuario loginUser) {
+    public LoginUserDTO loginUser(Usuario loginUser) {
         Optional<Usuario> user = usuarioRepo.findByEmail(loginUser.getEmail());
         if (user.isPresent()) {
             String password = loginUser.getPassword();
@@ -118,8 +116,8 @@ public class UsuarioService {
         }
     }
 
-    private static LoginUser setUserLogin(Usuario usuario) {
-        return LoginUser.builder().id(usuario.getUser_id()).nombre(usuario.getNombre()).apellidos(usuario.getApellidos())
+    private static LoginUserDTO setUserLogin(Usuario usuario) {
+        return LoginUserDTO.builder().id(usuario.getUser_id()).nombre(usuario.getNombre()).apellidos(usuario.getApellidos())
                 .email(usuario.getEmail()).isAdmin(usuario.is_admin()).build();
     }
 
@@ -134,9 +132,9 @@ public class UsuarioService {
         return passwordEncoder.matches(password, usuario.getPassword());
     }
 
-    public List<LoginUser> getHistorialPartidosUsuarioNumerico() {
+    public List<LoginUserDTO> getHistorialPartidosUsuarioNumerico() {
         List<Usuario> all = usuarioRepo.findAll();
-        List<LoginUser> loginUserList = new ArrayList<>();
+        List<LoginUserDTO> loginUserList = new ArrayList<>();
         Integer historialPartidos;
         for (Usuario usuario: all) {
             log.info("usuarios: " + usuario.toString());
@@ -144,7 +142,7 @@ public class UsuarioService {
             if (historialPartidos == null) {
                 historialPartidos = 0;
             }
-            loginUserList.add(LoginUser.builder()
+            loginUserList.add(LoginUserDTO.builder()
                     .id(usuario.getUser_id())
                     .nombre(usuario.getNombre())
                     .apellidos(usuario.getApellidos())
@@ -156,11 +154,11 @@ public class UsuarioService {
         return loginUserList;
     }
 
-    public List<PartidoResponse> listarPartidosUsuario (Long userId) {
-        List<PartidoResponse> partidosResponse = new ArrayList<>();
+    public List<PartidoResponseDTO> listarPartidosUsuario (Long userId) {
+        List<PartidoResponseDTO> partidosResponse = new ArrayList<>();
         List<Partido> partidoList = partidoRepo.listarPartidosUsuario(userId);
         for (Partido partido: partidoList) {
-            partidosResponse.add(PartidoResponse.builder()
+            partidosResponse.add(PartidoResponseDTO.builder()
                     .equipoVisitante(partido.getEquipoVisitante())
                     .fechaPartido(String.valueOf(partido.getFechaPartido()))
                     .build());

@@ -1,7 +1,6 @@
 package com.basketballticketsproject.basketballticketsproject.controller;
 
 
-import com.basketballticketsproject.basketballticketsproject.dto.PartidoResponse;
 import com.basketballticketsproject.basketballticketsproject.entity.Partido;
 import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
 import com.basketballticketsproject.basketballticketsproject.service.FileStorageService;

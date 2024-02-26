@@ -1,10 +1,8 @@
 package com.basketballticketsproject.basketballticketsproject.utils;
 
-import com.basketballticketsproject.basketballticketsproject.dto.PartidoResponse;
+import com.basketballticketsproject.basketballticketsproject.dto.PartidoResponseDTO;
 import com.basketballticketsproject.basketballticketsproject.entity.Partido;
-import com.basketballticketsproject.basketballticketsproject.entity.Ticket;
 import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
-import jakarta.mail.MessagingException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +10,9 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -25,19 +26,19 @@ import static com.basketballticketsproject.basketballticketsproject.utils.Consta
 
 @Component
 @Slf4j
-public class EnviarEmail {
+public class SchedulerUtils {
 
     @Autowired
     private  JavaMailSender mailSender;
 
-    public  void enviarEmailEntrada(Set<Partido> partidos, List<Usuario> usuarios) throws MessagingException {
-        List<PartidoResponse> partidoResponseList = new ArrayList<>();
+    public  void enviarEmailEntrada(Set<Partido> partidos, List<Usuario> usuarios) {
+        List<PartidoResponseDTO> partidoResponseList = new ArrayList<>();
         SimpleMailMessage email = new SimpleMailMessage();
         String listString = StringUtils.EMPTY;
         for (Partido partido: partidos) {
             String fecha = StringUtils.replace(String.valueOf(partido.getFechaPartido()), "T", " ");
-            log.info("PARTIDOS: " + partido.toString());
-            partidoResponseList.add(PartidoResponse.builder().equipoVisitante("Granada - "+ partido.getEquipoVisitante())
+            log.info("PARTIDOS: " + partido);
+            partidoResponseList.add(PartidoResponseDTO.builder().equipoVisitante("Granada - "+ partido.getEquipoVisitante())
                     .fechaPartido(fecha).build());
             listString = partidoResponseList.stream().map(Object::toString)
                     .collect(Collectors.joining(""));
@@ -51,6 +52,31 @@ public class EnviarEmail {
         }
 
     }
+
+    public void borrarCarpetasPartidosAnteriores(Set<Partido> listaPartidos) {
+        for (Partido partido : listaPartidos) {
+            LocalDateTime fecha = partido.getFechaPartido();
+            String fechaStr = fecha.format(DateTimeFormatter.ofPattern(Constants.DATE_FORMATTER_CARPTETAS));
+            File borrar = new File(Constants.ENTRADAS_PATH + "/" + fechaStr + "_" + "Granada-"
+                    + partido.getEquipoVisitante());
+            log.info("carpeta: " + borrar.getName());
+            deleteFile(borrar);
+        }
+    }
+
+    public void deleteFile(File file){
+        if (file.exists()) {
+            File f[]=file.listFiles();
+            for (File value : f) {
+               value.delete();
+            }
+            file.delete();
+
+        }else
+            System.out.println("Capeta con nombre: "+file.getName()+" no existe");
+    }
+
+
 
     private static Properties getProperties(String claveemail) {
         Properties props = System.getProperties();

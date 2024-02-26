@@ -52,7 +52,7 @@ public class FileStorageService {
             // En ../Entradas están las entradas de la app (ENTRADAS_PATH). Cada partido tiene una subcarpeta con un nombre único y dentro sus entradas
             // Entradas/[fechaPartido]_Granada-[EquipoVisitante]/entrada[i].pdf
             LocalDateTime fecha = partido.getFechaPartido();
-            String fechaStr = fecha.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            String fechaStr = fecha.format(DateTimeFormatter.ofPattern(Constants.DATE_FORMATTER_CARPTETAS));
             String carpetaDestino = Constants.ENTRADAS_PATH+"/"+fechaStr+"_"+"Granada-"+partido.getEquipoVisitante();
             new File(carpetaDestino).mkdirs();
             

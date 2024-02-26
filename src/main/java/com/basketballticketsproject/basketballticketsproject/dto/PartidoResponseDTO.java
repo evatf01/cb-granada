@@ -7,7 +7,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PartidoResponse {
+public class PartidoResponseDTO {
 
     private String fechaPartido;
 
