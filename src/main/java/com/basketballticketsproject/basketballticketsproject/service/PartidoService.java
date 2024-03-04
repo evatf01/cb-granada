@@ -101,4 +101,13 @@ public class PartidoService {
         LocalDateTime parsedDate = LocalDateTime.parse(text, formatters);
         return partidoRepo.getPartidosAnteriores(parsedDate);
     }
+
+    public Set<Partido> getProximosPartidosUsuario() {
+        LocalDateTime date = LocalDateTime.now();
+        DateTimeFormatter formatters = DateTimeFormatter.ofPattern(DATE_FORMATTER);
+        String text = date.format(formatters);
+        LocalDateTime parsedDate = LocalDateTime.parse(text, formatters);
+
+        return partidoRepo.findProximosPartidos(parsedDate);
+    }
 }

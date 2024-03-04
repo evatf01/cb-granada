@@ -28,4 +28,7 @@ public interface PartidoRepo extends JpaRepository<Partido, Long> {
 
     @Query(value = "SELECT * FROM partido where ?1 > fecha_partido  ORDER BY fecha_partido", nativeQuery = true)
     Set<Partido> getPartidosAnteriores(LocalDateTime parsedDate);
+
+    @Query(value = "SELECT * FROM partido where ?1 < fecha_partido ORDER BY fecha_partido", nativeQuery = true)
+    Set<Partido> findProximosPartidos(LocalDateTime parsedDate);
 }

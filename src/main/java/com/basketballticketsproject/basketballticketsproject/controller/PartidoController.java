@@ -171,5 +171,13 @@ public class PartidoController {
         return new ResponseEntity<>(partidosIds,HttpStatus.NO_CONTENT);
     }
 
+    @GetMapping("/getProximosPartidosDisponibles")
+    public  ResponseEntity<Set<Partido>> getProximosPartidosDisponibles() {
+        Set<Partido> partidosIds = partidoService.getProximosPartidosUsuario();
+        if (!partidosIds.isEmpty()) {
+            return new ResponseEntity<>(partidosIds, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(partidosIds,HttpStatus.NO_CONTENT);
+    }
 
 }
