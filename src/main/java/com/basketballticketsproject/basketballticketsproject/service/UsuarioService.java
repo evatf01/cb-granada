@@ -59,7 +59,7 @@ public class UsuarioService {
     }
 
     public List<Usuario> getAllUsers(){
-        return usuarioRepo.findAllUsers();
+        return usuarioRepo.findAll();
     }
 
     public List<Usuario> getAllUsersLimit(){
