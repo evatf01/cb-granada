@@ -37,7 +37,6 @@ public class SchedulerUtils {
         String listString = StringUtils.EMPTY;
         for (Partido partido: partidos) {
             String fecha = StringUtils.replace(String.valueOf(partido.getFechaPartido()), "T", " ");
-            log.info("PARTIDOS: " + partido);
             partidoResponseList.add(PartidoResponseDTO.builder().equipoVisitante("Granada - "+ partido.getEquipoVisitante())
                     .fechaPartido(fecha).build());
             listString = partidoResponseList.stream().map(Object::toString)
@@ -50,7 +49,6 @@ public class SchedulerUtils {
             email.setText(EMAIL_MENSAJE + listString);
             mailSender.send(email);
         }
-
     }
 
     public void borrarCarpetasPartidosAnteriores(Set<Partido> listaPartidos) {
