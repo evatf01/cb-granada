@@ -48,7 +48,7 @@ public class PartidoController {
     }
 
     @PostMapping(value= "/subirPartido", consumes = { MediaType.APPLICATION_JSON_VALUE,MediaType.MULTIPART_FORM_DATA_VALUE })
-    public String crearPartido(@RequestPart("partido") String partidoStr, @RequestPart("entradasPdf") MultipartFile entradasPdf) throws IOException{
+    public Partido crearPartido(@RequestPart("partido") String partidoStr, @RequestPart("entradasPdf") MultipartFile entradasPdf) throws IOException{
         Partido partido = null;
         System.out.println(partidoStr);
         System.out.println(entradasPdf.getOriginalFilename());
@@ -68,10 +68,10 @@ public class PartidoController {
             fileStorageService.storeFile(entradas, partido);
             entradas.delete();
             
-            return "done";
+            return partido ;
         } 
         else 
-            return "No se pudo leer el partido";      
+            return partido;
     }
 
     //borrar un partido
