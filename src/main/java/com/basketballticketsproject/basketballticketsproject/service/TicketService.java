@@ -60,7 +60,7 @@ public class TicketService {
                 this.asignarEntrada(ticketNoEntregado.get(), usuario);
                 //comprobamos si nos quedamos sin entradas
                 if (ticketNoEntregado.get().getPartido().getStockEntradas() <= 0 ){
-                    return false;
+                    return true;
                 }
                 return true;
             } else {
