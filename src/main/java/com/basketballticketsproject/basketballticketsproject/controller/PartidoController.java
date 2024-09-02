@@ -60,7 +60,8 @@ public class PartidoController {
             System.out.println("======== Error crearPartido =============");
             System.out.println(err.toString());
         }
-        if(partido != null) {           
+        if(partido != null) {
+            partido.setFechaPublicacion(partidoService.getTiempoAleatorio(partido.getFechaPublicacion()));
             File entradas =  new File(entradasPdf.getOriginalFilename());
             try (OutputStream os = new FileOutputStream(entradas)) {
                 os.write(entradasPdf.getBytes());

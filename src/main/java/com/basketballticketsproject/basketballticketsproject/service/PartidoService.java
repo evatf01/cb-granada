@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 
 import static com.basketballticketsproject.basketballticketsproject.utils.Constants.DATE_FORMATTER;
@@ -89,7 +90,7 @@ public class PartidoService {
     public Partido modificarPartido(Long id, Partido partidoNuevo) {
         final Partido updatePartido = partidoRepo.findById(id).orElseThrow(() -> new IllegalStateException("Partido no existe con Id: " + id));
         updatePartido.setEquipoVisitante(partidoNuevo.getEquipoVisitante());
-        updatePartido.setFechaPartido(partidoNuevo.getFechaPartido());
+        updatePartido.setFechaPartido(getTiempoAleatorio(partidoNuevo.getFechaPartido()));
         updatePartido.setFechaPublicacion(partidoNuevo.getFechaPublicacion());
         return partidoRepo.save(updatePartido);
     }
@@ -110,5 +111,19 @@ public class PartidoService {
         LocalDateTime parsedDate = LocalDateTime.parse(text, formatters);
 
         return partidoRepo.findProximosPartidos(parsedDate);
+    }
+    public LocalDateTime getTiempoAleatorio(LocalDateTime tiempo){
+        Random ramdon = new Random();
+        int horas = ramdon.nextInt(15 - 8 + 1) + 8;
+        int minutos = ramdon.nextInt(60);
+        if(horas < 10) horas = '0'+horas;
+        if(minutos < 10) minutos = '0'+minutos;
+        String horario = "T" + horas + ":" + minutos;
+        //Hago esto para obtener la fecha y quitar las horas que se envian en el formulario ya que es la hora actual
+        String[] obtenerFecha = tiempo.toString().split("T");
+        String tiempoFinal = obtenerFecha[0] + horario;
+        LocalDateTime tiempoAleatorio = LocalDateTime.parse(tiempoFinal);
+
+        return tiempoAleatorio;
     }
 }
