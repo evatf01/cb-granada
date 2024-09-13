@@ -1,6 +1,7 @@
 package com.basketballticketsproject.basketballticketsproject.controller;
 
 
+import com.basketballticketsproject.basketballticketsproject.config.SecurityConfig;
 import com.basketballticketsproject.basketballticketsproject.entity.Partido;
 import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
 import com.basketballticketsproject.basketballticketsproject.service.FileStorageService;
@@ -13,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,11 +29,11 @@ import java.util.List;
 import java.util.Set;
 
 
-@CrossOrigin(origins = "http://localhost:4200")
+//@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/cbgranada-api/v1")
 @Slf4j
-public class PartidoController {
+public class PartidoController{
 
     @Autowired
     PartidoService partidoService;

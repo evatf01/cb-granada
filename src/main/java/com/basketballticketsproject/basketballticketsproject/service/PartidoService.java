@@ -114,8 +114,8 @@ public class PartidoService {
     }
     public LocalDateTime getTiempoAleatorio(LocalDateTime tiempo){
         Random ramdon = new Random();
-        int horas = ramdon.nextInt(15 - 8 + 1) + 8;
-        int minutos = ramdon.nextInt(60);
+        int horas = ramdon.nextInt(21 - 9 + 1) + 9;
+        int minutos = ramdon.nextInt(59);
         if(horas < 10) horas = '0'+horas;
         if(minutos < 10) minutos = '0'+minutos;
         String horario = "T" + horas + ":" + minutos;
