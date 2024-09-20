@@ -2,6 +2,7 @@ package com.basketballticketsproject.basketballticketsproject.controller;
 
 import com.basketballticketsproject.basketballticketsproject.dto.LoginUserDTO;
 import com.basketballticketsproject.basketballticketsproject.dto.PartidoResponseDTO;
+import com.basketballticketsproject.basketballticketsproject.entity.TokenResponse;
 import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
 import com.basketballticketsproject.basketballticketsproject.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,10 +61,11 @@ public class UsuarioController {
 
     //login
     @PostMapping("/login")
-    public ResponseEntity<String> loginUser(@RequestBody Usuario usuario) {
+    public ResponseEntity<TokenResponse> loginUser(@RequestBody Usuario usuario) {
         final LoginUserDTO login = usuarioService.loginUser(usuario);
         String token = getJWTToken(login);
-        return ResponseEntity.ok(token);
+        TokenResponse tokenResponse = new TokenResponse(token);
+        return ResponseEntity.ok(tokenResponse);
     }
 
     //obtener todos los usuarios

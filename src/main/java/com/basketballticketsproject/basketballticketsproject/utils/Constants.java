@@ -25,6 +25,6 @@ public class Constants {
 
 
     public static String EMAIL_MENSAJE = "Partidos disponibles actualmente: \n";
-    
+
 
 }
