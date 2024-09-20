@@ -1,26 +1,19 @@
 package com.basketballticketsproject.basketballticketsproject.controller;
 
-import com.basketballticketsproject.basketballticketsproject.config.JWTAuthorizationFilter;
 import com.basketballticketsproject.basketballticketsproject.dto.LoginUserDTO;
 import com.basketballticketsproject.basketballticketsproject.dto.PartidoResponseDTO;
 import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
 import com.basketballticketsproject.basketballticketsproject.service.UsuarioService;
-import com.basketballticketsproject.basketballticketsproject.utils.Constants;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Key;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
+import static com.basketballticketsproject.basketballticketsproject.config.JWTAuthorizationFilter.getJWTToken;
 
 
 //@CrossOrigin(origins = "http://localhost:4200")
@@ -67,32 +60,10 @@ public class UsuarioController {
 
     //login
     @PostMapping("/login")
-    public ResponseEntity<LoginUserDTO> loginUser(@RequestBody Usuario usuario) {
+    public ResponseEntity<String> loginUser(@RequestBody Usuario usuario) {
         final LoginUserDTO login = usuarioService.loginUser(usuario);
-        usuario.set_admin(login.isAdmin());
-        String token = getJWTToken(usuario);
-        login.setToken(token);
-        return ResponseEntity.ok(login);
-    }
-    private String getJWTToken(Usuario user) {
-        List<GrantedAuthority> grantedAuthorities = AuthorityUtils
-                .commaSeparatedStringToAuthorityList("ROLE_USER");
-        if(user.is_admin()){
-            grantedAuthorities = AuthorityUtils.commaSeparatedStringToAuthorityList("ROLE_ADMIN");
-        }
-        String token = Jwts
-                .builder()
-                .setSubject(user.getEmail())
-                .claim("authorities",
-                        grantedAuthorities.stream()
-                                .map(GrantedAuthority::getAuthority)
-                                .collect(Collectors.toList()))
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 600000))
-                .signWith(SignatureAlgorithm.HS256,
-                        Constants.SECRET).compact();
-
-        return  token;
+        String token = getJWTToken(login);
+        return ResponseEntity.ok(token);
     }
 
     //obtener todos los usuarios

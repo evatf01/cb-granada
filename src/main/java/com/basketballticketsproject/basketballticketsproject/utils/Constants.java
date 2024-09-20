@@ -25,8 +25,6 @@ public class Constants {
 
 
     public static String EMAIL_MENSAJE = "Partidos disponibles actualmente: \n";
-
-    public static Key SECRET = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-
+    
 
 }

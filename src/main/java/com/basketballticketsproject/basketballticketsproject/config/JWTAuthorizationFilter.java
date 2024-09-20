@@ -2,16 +2,22 @@ package com.basketballticketsproject.basketballticketsproject.config;
 
 import java.io.IOException;
 import java.security.Key;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.basketballticketsproject.basketballticketsproject.dto.LoginUserDTO;
+import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
 import com.basketballticketsproject.basketballticketsproject.utils.Constants;
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -49,7 +55,7 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
 
     private Claims validateToken(HttpServletRequest request) {
         String jwtToken = request.getHeader(HEADER).substring(7);
-        return Jwts.parser().setSigningKey(Constants.SECRET).build().parseClaimsJws(jwtToken).getBody();
+        return Jwts.parser().setSigningKey(key()).build().parseClaimsJws(jwtToken).getBody();
     }
 
     /**
@@ -77,5 +83,29 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
             return false;
         }
         return true;
+    }
+    public static String getJWTToken(LoginUserDTO user) {
+        List<GrantedAuthority> grantedAuthorities = AuthorityUtils
+                .commaSeparatedStringToAuthorityList("ROLE_USER");
+        if(user.isAdmin()){
+            grantedAuthorities = AuthorityUtils.commaSeparatedStringToAuthorityList("ROLE_ADMIN");
+        }
+        String token = Jwts
+                .builder()
+                .setSubject(user.getEmail())
+                .claim("authorities",
+                        grantedAuthorities.stream()
+                                .map(GrantedAuthority::getAuthority)
+                                .collect(Collectors.toList()))
+                .claim("usuario", user)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + 600000))
+                .signWith(SignatureAlgorithm.HS256,
+                        key()).compact();
+
+        return  token;
+    }
+    private static Key key(){
+        return Keys.secretKeyFor(SignatureAlgorithm.HS256);
     }
 }
