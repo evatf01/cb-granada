@@ -1,17 +1,26 @@
 package com.basketballticketsproject.basketballticketsproject.controller;
 
+import com.basketballticketsproject.basketballticketsproject.config.JWTAuthorizationFilter;
 import com.basketballticketsproject.basketballticketsproject.dto.LoginUserDTO;
 import com.basketballticketsproject.basketballticketsproject.dto.PartidoResponseDTO;
 import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
 import com.basketballticketsproject.basketballticketsproject.service.UsuarioService;
+import com.basketballticketsproject.basketballticketsproject.utils.Constants;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Key;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 //@CrossOrigin(origins = "http://localhost:4200")
@@ -57,12 +66,31 @@ public class UsuarioController {
     }
 
     //login
-    @PostMapping(path = "/login")
+    @PostMapping("/login")
     public ResponseEntity<LoginUserDTO> loginUser(@RequestBody Usuario usuario) {
+        String token = getJWTToken(usuario.getEmail());
         final LoginUserDTO login = usuarioService.loginUser(usuario);
+        login.setToken(token);
         return ResponseEntity.ok(login);
     }
+    private String getJWTToken(String username) {
+        List<GrantedAuthority> grantedAuthorities = AuthorityUtils
+                .commaSeparatedStringToAuthorityList("ROLE_USER");
 
+        String token = Jwts
+                .builder()
+                .setSubject(username)
+                .claim("authorities",
+                        grantedAuthorities.stream()
+                                .map(GrantedAuthority::getAuthority)
+                                .collect(Collectors.toList()))
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + 600000))
+                .signWith(SignatureAlgorithm.HS256,
+                        Constants.SECRET).compact();
+
+        return "Bearer " + token;
+    }
 
     //obtener todos los usuarios
     @GetMapping("/getAllUsers")

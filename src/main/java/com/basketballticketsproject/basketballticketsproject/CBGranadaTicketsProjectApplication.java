@@ -9,5 +9,4 @@ public class CBGranadaTicketsProjectApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(CBGranadaTicketsProjectApplication.class, args);
 	}
-
 }

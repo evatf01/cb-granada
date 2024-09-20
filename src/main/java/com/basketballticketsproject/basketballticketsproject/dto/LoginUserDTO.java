@@ -19,7 +19,10 @@ public class LoginUserDTO {
 
     private int partidosAsistidos;
 
+    private String token;
+
     @JsonProperty("isAdmin")
     private boolean isAdmin;
+
 
 }

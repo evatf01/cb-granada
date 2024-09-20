@@ -1,5 +1,10 @@
 package com.basketballticketsproject.basketballticketsproject.utils;
 
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+
+import java.security.Key;
+
 public class Constants {
 
     public static String NOMBRE_PDF_ENTRADAS = "Entradas.pdf";
@@ -20,6 +25,8 @@ public class Constants {
 
 
     public static String EMAIL_MENSAJE = "Partidos disponibles actualmente: \n";
+
+    public static Key SECRET = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
 
 }
