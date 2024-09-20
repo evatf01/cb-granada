@@ -68,18 +68,21 @@ public class UsuarioController {
     //login
     @PostMapping("/login")
     public ResponseEntity<LoginUserDTO> loginUser(@RequestBody Usuario usuario) {
-        String token = getJWTToken(usuario.getEmail());
         final LoginUserDTO login = usuarioService.loginUser(usuario);
+        usuario.set_admin(login.isAdmin());
+        String token = getJWTToken(usuario);
         login.setToken(token);
         return ResponseEntity.ok(login);
     }
-    private String getJWTToken(String username) {
+    private String getJWTToken(Usuario user) {
         List<GrantedAuthority> grantedAuthorities = AuthorityUtils
                 .commaSeparatedStringToAuthorityList("ROLE_USER");
-
+        if(user.is_admin()){
+            grantedAuthorities = AuthorityUtils.commaSeparatedStringToAuthorityList("ROLE_ADMIN");
+        }
         String token = Jwts
                 .builder()
-                .setSubject(username)
+                .setSubject(user.getEmail())
                 .claim("authorities",
                         grantedAuthorities.stream()
                                 .map(GrantedAuthority::getAuthority)
@@ -89,7 +92,7 @@ public class UsuarioController {
                 .signWith(SignatureAlgorithm.HS256,
                         Constants.SECRET).compact();
 
-        return "Bearer " + token;
+        return  token;
     }
 
     //obtener todos los usuarios
