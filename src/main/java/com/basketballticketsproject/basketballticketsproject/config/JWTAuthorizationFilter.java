@@ -6,42 +6,54 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.basketballticketsproject.basketballticketsproject.dto.LoginUserDTO;
-import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
-import com.basketballticketsproject.basketballticketsproject.utils.Constants;
+import com.basketballticketsproject.basketballticketsproject.repo.UsuarioRepo;
+import com.basketballticketsproject.basketballticketsproject.service.JwtService;
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+@Component
+@RequiredArgsConstructor
 public class JWTAuthorizationFilter extends OncePerRequestFilter {
-    private final String HEADER = "Authorization";
-    private final String PREFIX = "Bearer ";
+    private static final String PREFIX = "Bearer ";
+    @Autowired
+    private JwtService jwtService;
+    @Autowired
+    private  UserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
+        String path = request.getRequestURI();
+        if("/cbgranada-api/v1/login".equals(path) || "/cbgranada-api/v1/addUser".equals(path)){
+            chain.doFilter(request,response);
+            return;
+        }
         try {
-            if (checkJWTToken(request)) {
-                Claims claims = validateToken(request);
-                if (claims.get("authorities") != null) {
-                    setUpSpringAuthentication(claims, request);
-                } else {
-                    SecurityContextHolder.clearContext();
+            final String token = getTokenFromRquest(request);
+            if(token != null){
+                String username = jwtService.getUsernameFromToken(token);
+                if(username!= null && SecurityContextHolder.getContext().getAuthentication() == null){
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                    if(jwtService.isTokenValid(token,userDetails)){
+                        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(userDetails.getUsername(),null,userDetails.getAuthorities());
+                        auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(auth);
+                    }
                 }
-            } else {
-                SecurityContextHolder.clearContext();
             }
-            chain.doFilter(request, response);
         }  catch (MalformedJwtException e) {
             logger.error("Invalid JWT token: {}");
         } catch (ExpiredJwtException e) {
@@ -51,61 +63,14 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
         } catch (IllegalArgumentException e) {
             logger.error("JWT claims string is empty: {}");
         }
+        chain.doFilter(request, response);
     }
 
-    private Claims validateToken(HttpServletRequest request) {
-        String jwtToken = request.getHeader(HEADER).substring(7);
-        return Jwts.parser().setSigningKey(key()).build().parseClaimsJws(jwtToken).getBody();
-    }
-
-    /**
-     * Authentication method in Spring flow
-     *
-     * @param claims
-     */
-    private void setUpSpringAuthentication(Claims claims,HttpServletRequest request ) {
-        @SuppressWarnings("unchecked")
-        List<String> authorities = (List<String>) claims.get("authorities");
-
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                claims.getSubject(),
-                null,
-                authorities.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList()));
-
-        auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-        SecurityContextHolder.getContext().setAuthentication(auth);
-    }
-
-    private Boolean checkJWTToken(HttpServletRequest request) {
-        String authenticationHeader = request.getHeader(HEADER);
-        if (authenticationHeader == null || !authenticationHeader.startsWith(PREFIX)){
-            return false;
+    private String getTokenFromRquest(HttpServletRequest request) {
+        String jwtToken = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if(jwtToken != null && (StringUtils.hasText(jwtToken) || jwtToken.startsWith(PREFIX))){
+            return jwtToken.substring(7);
         }
-        return true;
-    }
-    public static String getJWTToken(LoginUserDTO user) {
-        List<GrantedAuthority> grantedAuthorities = AuthorityUtils
-                .commaSeparatedStringToAuthorityList("ROLE_USER");
-        if(user.isAdmin()){
-            grantedAuthorities = AuthorityUtils.commaSeparatedStringToAuthorityList("ROLE_ADMIN");
-        }
-        String token = Jwts
-                .builder()
-                .setSubject(user.getEmail())
-                .claim("authorities",
-                        grantedAuthorities.stream()
-                                .map(GrantedAuthority::getAuthority)
-                                .collect(Collectors.toList()))
-                .claim("usuario", user)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 600000))
-                .signWith(SignatureAlgorithm.HS256,
-                        key()).compact();
-
-        return  token;
-    }
-    private static Key key(){
-        return Keys.secretKeyFor(SignatureAlgorithm.HS256);
+        return null;
     }
 }

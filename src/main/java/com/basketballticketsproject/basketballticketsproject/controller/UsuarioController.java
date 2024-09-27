@@ -4,27 +4,29 @@ import com.basketballticketsproject.basketballticketsproject.dto.LoginUserDTO;
 import com.basketballticketsproject.basketballticketsproject.dto.PartidoResponseDTO;
 import com.basketballticketsproject.basketballticketsproject.entity.TokenResponse;
 import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
+import com.basketballticketsproject.basketballticketsproject.repo.UsuarioRepo;
+import com.basketballticketsproject.basketballticketsproject.service.JwtService;
 import com.basketballticketsproject.basketballticketsproject.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
 
-import static com.basketballticketsproject.basketballticketsproject.config.JWTAuthorizationFilter.getJWTToken;
-
-
-//@CrossOrigin(origins = "http://localhost:4200")
+//@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/cbgranada-api/v1")
 public class UsuarioController {
 
     @Autowired
     private UsuarioService usuarioService;
-
+    private AuthenticationManager authenticationManager;
+    private JwtService jwtService;
 
     //encontrar user por nombre
     @GetMapping("/userName/{name}")
@@ -62,10 +64,8 @@ public class UsuarioController {
     //login
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> loginUser(@RequestBody Usuario usuario) {
-        final LoginUserDTO login = usuarioService.loginUser(usuario);
-        String token = getJWTToken(login);
-        TokenResponse tokenResponse = new TokenResponse(token);
-        return ResponseEntity.ok(tokenResponse);
+        final TokenResponse login = usuarioService.loginUser(usuario);
+        return ResponseEntity.ok(login);
     }
 
     //obtener todos los usuarios

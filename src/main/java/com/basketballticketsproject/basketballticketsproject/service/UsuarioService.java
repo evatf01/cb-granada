@@ -4,13 +4,18 @@ import com.basketballticketsproject.basketballticketsproject.dto.LoginUserDTO;
 import com.basketballticketsproject.basketballticketsproject.dto.PartidoResponseDTO;
 import com.basketballticketsproject.basketballticketsproject.entity.Partido;
 import com.basketballticketsproject.basketballticketsproject.entity.Ticket;
+import com.basketballticketsproject.basketballticketsproject.entity.TokenResponse;
 import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
 import com.basketballticketsproject.basketballticketsproject.repo.PartidoRepo;
 import com.basketballticketsproject.basketballticketsproject.repo.TicketRepo;
 import com.basketballticketsproject.basketballticketsproject.repo.UsuarioRepo;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,8 +26,8 @@ import static com.basketballticketsproject.basketballticketsproject.utils.Consta
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class UsuarioService {
-
     @Autowired
     private UsuarioRepo usuarioRepo;
 
@@ -34,6 +39,10 @@ public class UsuarioService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private AuthenticationManager authenticationManager;
+    @Autowired
+    private JwtService jwtService;
 
     private static final Pattern PASSWORD_PATTERN = Pattern.compile(PASSWORD_REGEX);
 
@@ -95,7 +104,7 @@ public class UsuarioService {
         usuarioRepo.delete(deleteUser);
     }
 
-    public LoginUserDTO loginUser(Usuario loginUser) {
+    public TokenResponse loginUser(Usuario loginUser) {
         Optional<Usuario> user = usuarioRepo.findByEmail(loginUser.getEmail());
         if (user.isPresent()) {
             String password = loginUser.getPassword();
@@ -104,7 +113,8 @@ public class UsuarioService {
             if (isPwdRight) {
                 Optional<Usuario> employee = usuarioRepo.findOneByEmailAndPassword(loginUser.getEmail(), encodedPassword);
                 if (employee.isPresent()) {
-                    return setUserLogin(employee.get());
+                    String token = jwtService.getToken(employee.get());
+                    return new TokenResponse(token);
                 } else {
                     throw  new ResponseMessage("Fallo en el login");
                 }
