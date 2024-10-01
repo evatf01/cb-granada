@@ -1,12 +1,7 @@
 package com.basketballticketsproject.basketballticketsproject.config;
 
 import java.io.IOException;
-import java.security.Key;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
 
-import com.basketballticketsproject.basketballticketsproject.repo.UsuarioRepo;
 import com.basketballticketsproject.basketballticketsproject.service.JwtService;
 import io.jsonwebtoken.*;
 import jakarta.servlet.FilterChain;

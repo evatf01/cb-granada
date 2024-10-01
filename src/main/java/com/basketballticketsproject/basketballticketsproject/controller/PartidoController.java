@@ -1,7 +1,6 @@
 package com.basketballticketsproject.basketballticketsproject.controller;
 
 
-import com.basketballticketsproject.basketballticketsproject.config.SecurityConfig;
 import com.basketballticketsproject.basketballticketsproject.entity.Partido;
 import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
 import com.basketballticketsproject.basketballticketsproject.service.FileStorageService;
@@ -14,11 +13,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -49,9 +46,10 @@ public class PartidoController{
         return partidoService.addPartido(partido);
     }
 
-    @PostMapping(value= "/subirPartido", consumes = { MediaType.APPLICATION_JSON_VALUE,MediaType.MULTIPART_FORM_DATA_VALUE })
-    public Partido crearPartido(@RequestPart("partido") String partidoStr, @RequestPart("entradasPdf") MultipartFile entradasPdf) throws IOException{
+    @PostMapping(value= "/subirPartido", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public Partido crearPartido(@RequestParam("partido") String partidoStr, @RequestParam MultipartFile entradasPdf) throws IOException{
         Partido partido = null;
+
         System.out.println(partidoStr);
         System.out.println(entradasPdf.getOriginalFilename());
         try {
@@ -70,10 +68,10 @@ public class PartidoController{
             }
             fileStorageService.storeFile(entradas, partido);
             entradas.delete();
-            
+
             return partido ;
-        } 
-        else 
+        }
+        else
             return partido;
     }
 
