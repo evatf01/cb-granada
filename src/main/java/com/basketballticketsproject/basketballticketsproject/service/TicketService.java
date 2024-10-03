@@ -216,7 +216,6 @@ public class TicketService {
 
         if (!CollectionUtils.isEmpty(ticketsNoEntregados)) {
             for (Ticket ticket : ticketsNoEntregados) {
-                log.info("helooooooo");
                 this.asignarEntrada(ticket, usuario);
             }
             return true;

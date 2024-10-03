@@ -49,9 +49,6 @@ public class PartidoController{
     @PostMapping(value= "/subirPartido", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public Partido crearPartido(@RequestParam("partido") String partidoStr, @RequestParam MultipartFile entradasPdf) throws IOException{
         Partido partido = null;
-
-        System.out.println(partidoStr);
-        System.out.println(entradasPdf.getOriginalFilename());
         try {
             ObjectMapper mapper = new ObjectMapper();
             mapper.registerModule(new JavaTimeModule()); //Permite que transforme las fechas

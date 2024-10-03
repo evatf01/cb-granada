@@ -29,7 +29,7 @@ public class JwtService {
                              .collect(Collectors.toList()))
              .claim("usuario", devolverUsuarioParametros(user))
              .issuedAt(new Date(System.currentTimeMillis()))
-             .expiration(new Date(System.currentTimeMillis() + 1000*60*24))
+             .expiration(new Date(System.currentTimeMillis() + 100000*60*24))
              .signWith(SecretKey).compact();
 
      return token;

@@ -4,14 +4,12 @@ import com.basketballticketsproject.basketballticketsproject.dto.LoginUserDTO;
 import com.basketballticketsproject.basketballticketsproject.dto.PartidoResponseDTO;
 import com.basketballticketsproject.basketballticketsproject.entity.TokenResponse;
 import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
-import com.basketballticketsproject.basketballticketsproject.repo.UsuarioRepo;
 import com.basketballticketsproject.basketballticketsproject.service.JwtService;
 import com.basketballticketsproject.basketballticketsproject.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
