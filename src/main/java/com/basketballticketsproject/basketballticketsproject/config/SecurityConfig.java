@@ -78,7 +78,7 @@ public class SecurityConfig{
             @Override
             public void addCorsMappings(@NonNull CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost","http://localhost:4200", "http://localhost:9191")
+                        .allowedOrigins("http://localhost","http://localhost:9191","http://localhost:4200")
                         .allowedMethods(HttpMethod.GET.toString(), HttpMethod.POST.toString(), HttpMethod.PUT.toString(),HttpMethod.OPTIONS.toString(),HttpMethod.DELETE.toString())
                         .allowedHeaders(HttpHeaders.ORIGIN,HttpHeaders.CONTENT_TYPE,HttpHeaders.ACCEPT,HttpHeaders.AUTHORIZATION,HttpHeaders.COOKIE,HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS)
                         .allowCredentials(false).maxAge(3600);
