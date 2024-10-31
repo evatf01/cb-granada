@@ -19,8 +19,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.basketballticketsproject.basketballticketsproject.utils.Constants.EMAIL_ASUNTO;
-import static com.basketballticketsproject.basketballticketsproject.utils.Constants.EMAIL_MENSAJE;
+import static com.basketballticketsproject.basketballticketsproject.utils.Constants.*;
 
 
 
@@ -30,6 +29,7 @@ public class SchedulerUtils {
 
     @Autowired
     private  JavaMailSender mailSender;
+
 
     public  void enviarEmailEntrada(Set<Partido> partidos, List<Usuario> usuarios) {
         List<PartidoResponseDTO> partidoResponseList = new ArrayList<>();
@@ -73,8 +73,6 @@ public class SchedulerUtils {
         }else
             System.out.println("Capeta con nombre: "+file.getName()+" no existe");
     }
-
-
 
     private static Properties getProperties(String claveemail) {
         Properties props = System.getProperties();

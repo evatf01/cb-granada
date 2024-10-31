@@ -6,15 +6,20 @@ import com.basketballticketsproject.basketballticketsproject.entity.TokenRespons
 import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
 import com.basketballticketsproject.basketballticketsproject.service.JwtService;
 import com.basketballticketsproject.basketballticketsproject.service.UsuarioService;
+import com.basketballticketsproject.basketballticketsproject.utils.SchedulerUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+
+import static com.basketballticketsproject.basketballticketsproject.utils.Constants.*;
 
 //@CrossOrigin(origins = "*")
 @RestController
@@ -25,6 +30,8 @@ public class UsuarioController {
     private UsuarioService usuarioService;
     private AuthenticationManager authenticationManager;
     private JwtService jwtService;
+    @Autowired
+    private JavaMailSender mailSender;
 
     //encontrar user por nombre
     @GetMapping("/userName/{name}")
@@ -56,6 +63,9 @@ public class UsuarioController {
     //añadir un usuario
     @PostMapping("/addUser")
     public ResponseEntity<Usuario> addUsuario(@RequestBody Usuario usuario) {
+
+        enviarConfirmacionEmail(usuario);
+
         return new ResponseEntity<>(usuarioService.saveUsuario(usuario), HttpStatus.CREATED);
     }
 
@@ -130,4 +140,24 @@ public class UsuarioController {
         return new ResponseEntity<>(partidosIds,HttpStatus.NO_CONTENT);
     }
 
+    // Validacion del correo electronico del usuario
+    @GetMapping("/confirmacionEmail/{email}")
+    public ResponseEntity<Boolean> confirmacionEmail(@PathVariable String email){
+        final boolean check = usuarioService.validarEmail(email);
+        if (check) {
+            return new ResponseEntity<>(true, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(false, HttpStatus.NO_CONTENT);
+    }
+
+    public void enviarConfirmacionEmail(Usuario usuario) {
+
+        SimpleMailMessage email = new SimpleMailMessage();
+
+        email.setTo(usuario.getEmail());
+        email.setSubject(ASUNTO_VALIDACION);
+        email.setText(EMAIL_MENSAJE_VALIDACION + ENLACE_VALIDACION+usuario.getEmail());
+        mailSender.send(email);
+
+    }
 }

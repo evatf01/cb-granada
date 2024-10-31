@@ -64,6 +64,7 @@ public class UsuarioService {
         } else {
             throw new ResponseMessage("Contraseña no válida. La contraseña tiene que tener: un numero, sin espacios, minuscula, mayuscula, un caracter epecial, y minimo 8 caracteres");
         }
+
         return usuarioRepo.save(usuario);
     }
 
@@ -174,5 +175,14 @@ public class UsuarioService {
                     .build());
         }
         return partidosResponse;
+    }
+
+    public boolean validarEmail(String email) {
+        Usuario usuario = usuarioRepo.findByEmail(email)
+                .orElseThrow(() -> new IllegalStateException("Usuario no existe con email: " + email));
+
+        int result = usuarioRepo.validarEmail(usuario.getEmail());
+
+        return result > 0 ? true : false;
     }
 }

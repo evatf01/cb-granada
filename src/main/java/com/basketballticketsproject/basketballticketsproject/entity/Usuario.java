@@ -36,6 +36,9 @@ public class Usuario implements UserDetails {
     @Column(name = "partidosAsistidos")
     private int partidosAsistidos = 0;
 
+    @Column(name = "validado")
+    private boolean validado;
+
     private boolean is_admin = false;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "usuario", cascade = {
