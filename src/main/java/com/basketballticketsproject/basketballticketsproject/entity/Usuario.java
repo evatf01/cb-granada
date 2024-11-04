@@ -37,7 +37,7 @@ public class Usuario implements UserDetails {
     private int partidosAsistidos = 0;
 
     @Column(name = "validado")
-    private boolean validado;
+    private Boolean validado;
 
     private boolean is_admin = false;
 

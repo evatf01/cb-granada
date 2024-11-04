@@ -154,6 +154,7 @@ public class UsuarioController {
 
         SimpleMailMessage email = new SimpleMailMessage();
 
+        email.setFrom("noreply@t-systems.com");
         email.setTo(usuario.getEmail());
         email.setSubject(ASUNTO_VALIDACION);
         email.setText(EMAIL_MENSAJE_VALIDACION + ENLACE_VALIDACION+usuario.getEmail());
