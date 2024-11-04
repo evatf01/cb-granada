@@ -30,6 +30,6 @@ public class Constants {
     public static String EMAIL_MENSAJE_VALIDACION = "Por favor pinche en el siguiente enlace para confirmar su correo electronico: \n";
 
     //public static String ENLACE_VALIDACION = "https://entradascbgranada-api.t-systems.es:8447/cbgranada-api/v1/confirmacionEmail/";
-    public static String ENLACE_VALIDACION = "http://localhost:9191/cbgranada-api/v1/confirmacionEmail/";
+    public static String ENLACE_VALIDACION = "http://localhost:4200/email?";
 
 }
