@@ -2,6 +2,7 @@ package com.basketballticketsproject.basketballticketsproject.controller;
 
 import com.basketballticketsproject.basketballticketsproject.dto.LoginUserDTO;
 import com.basketballticketsproject.basketballticketsproject.dto.PartidoResponseDTO;
+import com.basketballticketsproject.basketballticketsproject.entity.Partido;
 import com.basketballticketsproject.basketballticketsproject.entity.TokenResponse;
 import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
 import com.basketballticketsproject.basketballticketsproject.service.JwtService;
@@ -141,13 +142,14 @@ public class UsuarioController {
     }
 
     // Validacion del correo electronico del usuario
-    @GetMapping("/confirmacionEmail/{email}")
-    public ResponseEntity<Boolean> confirmacionEmail(@PathVariable String email){
-        final boolean check = usuarioService.validarEmail(email);
-        if (check) {
-            return new ResponseEntity<>(true, HttpStatus.OK);
+    @PutMapping("/confirmacionEmail/{email}")
+    public ResponseEntity<Usuario> confirmacionEmail(@PathVariable String email){
+        final Usuario usuario = usuarioService.validarEmail(email);
+
+        if (ObjectUtils.isEmpty(usuario)) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(false, HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(usuario, HttpStatus.OK);
     }
 
     public void enviarConfirmacionEmail(Usuario usuario) {

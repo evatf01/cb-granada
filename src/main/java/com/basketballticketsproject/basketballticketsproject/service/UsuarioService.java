@@ -110,14 +110,20 @@ public class UsuarioService {
         if (user.isPresent()) {
             String password = loginUser.getPassword();
             String encodedPassword = user.get().getPassword();
+            boolean validado = loginUser.isValidado();
             boolean isPwdRight = passwordEncoder.matches(password, encodedPassword);
+
             if (isPwdRight) {
                 Optional<Usuario> employee = usuarioRepo.findOneByEmailAndPassword(loginUser.getEmail(), encodedPassword);
-                if (employee.isPresent()) {
-                    String token = jwtService.getToken(employee.get());
-                    return new TokenResponse(token);
-                } else {
-                    throw  new ResponseMessage("Fallo en el login");
+                if(validado){
+                    if (employee.isPresent()) {
+                        String token = jwtService.getToken(employee.get());
+                        return new TokenResponse(token);
+                    } else {
+                        throw  new ResponseMessage("Fallo en el login");
+                    }
+                }else{
+                    throw  new ResponseMessage("El email no ha sido validado");
                 }
             } else {
                 throw  new ResponseMessage("La contraseña no coincide");
@@ -177,12 +183,12 @@ public class UsuarioService {
         return partidosResponse;
     }
 
-    public boolean validarEmail(String email) {
+    public Usuario validarEmail(String email) {
         Usuario usuario = usuarioRepo.findByEmail(email)
                 .orElseThrow(() -> new IllegalStateException("Usuario no existe con email: " + email));
 
-        int result = usuarioRepo.validarEmail(usuario.getEmail());
+        usuario.setValidado(true);
 
-        return result > 0 ? true : false;
+        return usuarioRepo.save(usuario);
     }
 }

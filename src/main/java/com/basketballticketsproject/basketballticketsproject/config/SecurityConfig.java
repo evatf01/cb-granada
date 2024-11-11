@@ -64,8 +64,10 @@ public class SecurityConfig{
         http.cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable()).sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                                .requestMatchers("/cbgranada-api/v1/login").permitAll()
-                                .requestMatchers("/cbgranada-api/v1/addUser").permitAll()
+                                .requestMatchers("/cbgranada-api/v1/login/**").permitAll()
+                                .requestMatchers("/cbgranada-api/v1/addUser/**").permitAll()
+                                .requestMatchers("/cbgranada-api/v1/confirmacionEmail/**").permitAll()
+                                .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated())
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(authorizationFilter(), UsernamePasswordAuthenticationFilter.class);

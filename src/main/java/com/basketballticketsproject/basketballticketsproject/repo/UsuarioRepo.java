@@ -28,7 +28,7 @@ public interface UsuarioRepo extends JpaRepository<Usuario, Long> {
             nativeQuery = true)
    Integer getHistorialPartidos(Long id);
 
-    @Modifying
-    @Query(value = "UPDATE usuario set VALIDADO = true where email = ?1", nativeQuery = true)
-    int validarEmail(String email);
+    //@Modifying
+    //@Query(value = "UPDATE usuario set VALIDADO = true where email = ?1", nativeQuery = true)
+    //int validarEmail(String email);
 }

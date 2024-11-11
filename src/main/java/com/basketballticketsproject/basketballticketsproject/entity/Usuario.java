@@ -1,10 +1,7 @@
 package com.basketballticketsproject.basketballticketsproject.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -37,7 +34,7 @@ public class Usuario implements UserDetails {
     private int partidosAsistidos = 0;
 
     @Column(name = "validado")
-    private Boolean validado;
+    @Getter @Setter private boolean validado;
 
     private boolean is_admin = false;
 

@@ -32,7 +32,9 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
         String path = request.getRequestURI();
-        if("/cbgranada-api/v1/login".equals(path) || "/cbgranada-api/v1/addUser".equals(path)){
+        String regex = "^/cbgranada-api/v1/confirmacionEmail/.+";
+
+        if("/cbgranada-api/v1/login".equals(path) || "/cbgranada-api/v1/addUser".equals(path) || path.matches(regex)){
             chain.doFilter(request,response);
             return;
         }
