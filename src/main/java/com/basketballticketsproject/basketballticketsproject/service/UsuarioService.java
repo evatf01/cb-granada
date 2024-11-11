@@ -110,7 +110,7 @@ public class UsuarioService {
         if (user.isPresent()) {
             String password = loginUser.getPassword();
             String encodedPassword = user.get().getPassword();
-            boolean validado = loginUser.isValidado();
+            boolean validado = user.get().isValidado();
             boolean isPwdRight = passwordEncoder.matches(password, encodedPassword);
 
             if (isPwdRight) {
