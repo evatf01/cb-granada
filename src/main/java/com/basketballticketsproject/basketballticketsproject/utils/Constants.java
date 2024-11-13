@@ -27,9 +27,11 @@ public class Constants {
 
     public static String EMAIL_MENSAJE = "Partidos disponibles actualmente: \n";
 
-    public static String EMAIL_MENSAJE_VALIDACION = "Por favor pinche en el siguiente enlace para confirmar su correo electronico: \n";
+    public static String EMAIL_MENSAJE_VALIDACION = "Por favor pinche en el siguiente enlace para confirmar su correo electronico: \n \n";
 
-    //public static String ENLACE_VALIDACION = "https://entradascbgranada-api.t-systems.es:8447/cbgranada-api/v1/confirmacionEmail/";
-    public static String ENLACE_VALIDACION = "http://localhost:4200/email?";
+    public static String EMAIL_MENSAJE_VALIDACION_EN = "Please use next link to confirm your email: \n \n";
+
+    public static String ENLACE_VALIDACION = "https://entradascbgranada-api.t-systems.es:8447/cbgranada-api/v1/email?";
+    //public static String ENLACE_VALIDACION = "http://localhost:4200/email?";
 
 }

@@ -159,7 +159,7 @@ public class UsuarioController {
         email.setFrom("noreply@t-systems.com");
         email.setTo(usuario.getEmail());
         email.setSubject(ASUNTO_VALIDACION);
-        email.setText(EMAIL_MENSAJE_VALIDACION + ENLACE_VALIDACION+usuario.getEmail());
+        email.setText(EMAIL_MENSAJE_VALIDACION_EN + ENLACE_VALIDACION+usuario.getEmail());
         mailSender.send(email);
 
     }
