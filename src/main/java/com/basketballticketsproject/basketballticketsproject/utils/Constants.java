@@ -19,7 +19,7 @@ public class Constants {
 
     public static final String ENTRADAS_PATH = "../Entradas";
 
-    public static final int NUM_ENTRADAS = 50;
+    public static final int NUM_ENTRADAS = 10;
 
     public static String EMAIL_ASUNTO = "PARTIDOS GRANADA";
 
