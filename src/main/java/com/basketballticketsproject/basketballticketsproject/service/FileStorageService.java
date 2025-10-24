@@ -9,6 +9,7 @@ import com.basketballticketsproject.basketballticketsproject.utils.Constants;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.multipdf.Splitter;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +37,7 @@ public class FileStorageService {
 
     public String storeFile(final File entradas, Partido partido) throws IOException {
         //splittear el pdf en varios
-        final PDDocument document = PDDocument.load(entradas);
+        final PDDocument document = Loader.loadPDF(entradas);
         final Splitter splitter = new Splitter();
         final List<PDDocument> pages = splitter.split(document);
         final Iterator<PDDocument> iterator = pages.listIterator();

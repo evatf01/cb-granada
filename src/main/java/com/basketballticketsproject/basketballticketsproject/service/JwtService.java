@@ -3,22 +3,19 @@ package com.basketballticketsproject.basketballticketsproject.service;
 import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
 import org.springframework.cglib.core.internal.Function;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
-import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
 @Service
 public class JwtService {
-    private final SecretKey SecretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    private final SecretKey SecretKey = Jwts.SIG.HS256.key().build();
  public String getToken(Usuario user){
      String token = Jwts
              .builder()
