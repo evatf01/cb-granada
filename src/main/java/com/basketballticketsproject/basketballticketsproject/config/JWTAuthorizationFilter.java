@@ -1,7 +1,5 @@
 package com.basketballticketsproject.basketballticketsproject.config;
 
-import java.io.IOException;
-
 import com.basketballticketsproject.basketballticketsproject.service.JwtService;
 import io.jsonwebtoken.*;
 import jakarta.servlet.FilterChain;
@@ -20,53 +18,66 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import java.io.IOException;
+
 @Component
 @RequiredArgsConstructor
 public class JWTAuthorizationFilter extends OncePerRequestFilter {
+
     private static final String PREFIX = "Bearer ";
+
     @Autowired
     private JwtService jwtService;
+
     @Autowired
-    private  UserDetailsService userDetailsService;
+    private UserDetailsService userDetailsService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
-        String path = request.getRequestURI();
-        String regex = "^/cbgranada-api/v1/confirmacionEmail/.+";
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+            throws ServletException, IOException {
 
-        if("/cbgranada-api/v1/login".equals(path) || "/cbgranada-api/v1/addUser".equals(path) || path.matches(regex)){
-            chain.doFilter(request,response);
+        String path = request.getRequestURI();
+
+        if (path.startsWith("/cbgranada-api/v1/login")
+                || path.startsWith("/cbgranada-api/v1/addUser")
+                || path.startsWith("/cbgranada-api/v1/confirmacionEmail")
+                || path.startsWith("/cbgranada-api/v1/password-reset")
+                || path.startsWith("/error")) {
+            chain.doFilter(request, response);
             return;
         }
+
+        final String token = getTokenFromRequest(request);
+        if (token == null) {
+            chain.doFilter(request, response);
+            return;
+        }
+
         try {
-            final String token = getTokenFromRquest(request);
-            if(token != null){
-                String username = jwtService.getUsernameFromToken(token);
-                if(username!= null && SecurityContextHolder.getContext().getAuthentication() == null){
-                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                    if(jwtService.isTokenValid(token,userDetails)){
-                        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(userDetails.getUsername(),null,userDetails.getAuthorities());
-                        auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                        SecurityContextHolder.getContext().setAuthentication(auth);
-                    }
+            String username = jwtService.getUsernameFromToken(token);
+
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+                if (jwtService.isTokenValid(token, userDetails)) {
+                    UsernamePasswordAuthenticationToken auth =
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails, null, userDetails.getAuthorities());
+                    auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(auth);
                 }
             }
-        }  catch (MalformedJwtException e) {
-            logger.error("Invalid JWT token: {}");
-        } catch (ExpiredJwtException e) {
-            logger.error("JWT token is expired: {}");
-        } catch (UnsupportedJwtException e) {
-            logger.error("JWT token is unsupported: {}");
-        } catch (IllegalArgumentException e) {
-            logger.error("JWT claims string is empty: {}");
+        } catch (JwtException e) {
+            logger.error("JWT inválido o no confiable: {}");
         }
+
         chain.doFilter(request, response);
     }
 
-    private String getTokenFromRquest(HttpServletRequest request) {
-        String jwtToken = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if(jwtToken != null && (StringUtils.hasText(jwtToken) || jwtToken.startsWith(PREFIX))){
-            return jwtToken.substring(7);
+    private String getTokenFromRequest(HttpServletRequest request) {
+        String header = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (StringUtils.hasText(header) && header.startsWith(PREFIX)) {
+            return header.substring(PREFIX.length());
         }
         return null;
     }

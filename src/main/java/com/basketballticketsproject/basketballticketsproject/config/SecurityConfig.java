@@ -8,6 +8,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -28,27 +30,31 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-public class SecurityConfig{
+public class SecurityConfig {
+
     @Autowired
     private UsuarioRepo usuarioRepo;
 
     @Bean
-    public JWTAuthorizationFilter authorizationFilter(){
+    public JWTAuthorizationFilter authorizationFilter() {
         return new JWTAuthorizationFilter();
     }
+
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
     }
+
     @Bean
-    public UserDetailsService userDetailsService(){
-        return username -> usuarioRepo.findByEmail(username).orElseThrow(()-> new UsernameNotFoundException("User not found"));
+    public UserDetailsService userDetailsService() {
+        return username -> usuarioRepo.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
+
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService());
         authProvider.setPasswordEncoder(passwordEncoder());
-
         return authProvider;
     }
 
@@ -58,31 +64,50 @@ public class SecurityConfig{
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception
-    {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.cors(Customizer.withDefaults())
-                .csrf(csrf -> csrf.disable()).sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                                .requestMatchers("/cbgranada-api/v1/login/**").permitAll()
-                                .requestMatchers("/cbgranada-api/v1/addUser/**").permitAll()
-                                .requestMatchers("/cbgranada-api/v1/confirmacionEmail/**").permitAll()
-                                .requestMatchers("/error").permitAll()
+                        .requestMatchers(
+                                "/cbgranada-api/v1/login/**",
+                                "/cbgranada-api/v1/addUser/**",
+                                "/cbgranada-api/v1/confirmacionEmail/**",
+                                "/error",
+                                "/cbgranada-api/v1/password-reset/**"
+                        ).permitAll()
                         .anyRequest().authenticated())
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(authorizationFilter(), UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 
     @Bean
-    public WebMvcConfigurer CORSConfigurer(){
+    public WebMvcConfigurer CORSConfigurer() {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(@NonNull CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost","http://localhost:9191","http://localhost:4200")
-                        .allowedMethods(HttpMethod.GET.toString(), HttpMethod.POST.toString(), HttpMethod.PUT.toString(),HttpMethod.OPTIONS.toString(),HttpMethod.DELETE.toString())
-                        .allowedHeaders(HttpHeaders.ORIGIN,HttpHeaders.CONTENT_TYPE,HttpHeaders.ACCEPT,HttpHeaders.AUTHORIZATION,HttpHeaders.COOKIE,HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS)
-                        .allowCredentials(false).maxAge(3600);
+                        .allowedOrigins("http://localhost", "http://localhost:9191", "http://localhost:4200")
+                        .allowedMethods(
+                                HttpMethod.GET.name(),
+                                HttpMethod.POST.name(),
+                                HttpMethod.PUT.name(),
+                                HttpMethod.DELETE.name(),
+                                HttpMethod.OPTIONS.name()
+                        )
+                        .allowedHeaders(
+                                HttpHeaders.ORIGIN,
+                                HttpHeaders.CONTENT_TYPE,
+                                HttpHeaders.ACCEPT,
+                                HttpHeaders.AUTHORIZATION,
+                                HttpHeaders.COOKIE,
+                                HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN,
+                                HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS
+                        )
+                        .allowCredentials(false)
+                        .maxAge(3600);
             }
         };
     }

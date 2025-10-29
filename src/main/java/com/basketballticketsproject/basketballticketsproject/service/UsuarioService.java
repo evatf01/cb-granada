@@ -9,6 +9,7 @@ import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
 import com.basketballticketsproject.basketballticketsproject.repo.PartidoRepo;
 import com.basketballticketsproject.basketballticketsproject.repo.TicketRepo;
 import com.basketballticketsproject.basketballticketsproject.repo.UsuarioRepo;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -190,5 +191,16 @@ public class UsuarioService {
         usuario.setValidado(true);
 
         return usuarioRepo.save(usuario);
+    }
+
+    @Transactional
+    public void updatePassword(Long userId, String newPassword) {
+        Usuario usuario = usuarioRepo.findById(userId)
+                .orElseThrow(() -> new IllegalStateException("Usuario no encontrado con ID: " + userId));
+
+        String encoded = passwordEncoder.encode(newPassword);
+        usuario.setPassword(encoded);
+
+        usuarioRepo.save(usuario);
     }
 }
