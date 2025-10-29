@@ -4,6 +4,7 @@ import com.basketballticketsproject.basketballticketsproject.dto.PasswordResetCo
 import com.basketballticketsproject.basketballticketsproject.entity.PasswordResetToken;
 import com.basketballticketsproject.basketballticketsproject.entity.Usuario;
 import com.basketballticketsproject.basketballticketsproject.repo.PasswordResetTokenRepository;
+import com.basketballticketsproject.basketballticketsproject.utils.Constants;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
+
+import static com.basketballticketsproject.basketballticketsproject.utils.Constants.ENLACE_RESET_PASSWORD;
 
 @Service
 public class PasswordResetService {
@@ -36,7 +39,7 @@ public class PasswordResetService {
                                 UsuarioService usuarioService,
                                 PasswordEncoder passwordEncoder,
                                 @Value("${app.password-reset.token-expiration-minutes:60}") long tokenExpirationMinutes,
-                                @Value("${app.frontend.reset-url:http://localhost:4200/reset-password?token=}") String frontendResetBaseUrl) {
+                                @Value("${app.frontend.reset-url:"+ENLACE_RESET_PASSWORD+"}") String frontendResetBaseUrl) {
         this.tokenRepository = tokenRepository;
         this.mailSender = mailSender;
         this.usuarioService = usuarioService;
