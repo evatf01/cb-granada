@@ -34,6 +34,6 @@ public class Constants {
     public static String ENLACE_VALIDACION = "https://entradascbgranada-api.t-systems.es:8447/cbgranada-api/v1/email?";
     //public static String ENLACE_VALIDACION = "http://localhost:4200/email?";
 
-    public static final String ENLACE_RESET_PASSWORD = "http://localhost:4200/reset-password?token=";
-
+    public static final String ENLACE_RESET_PASSWORD = "https://entradascbgranada-api.t-systems.es:8447/cbgranada-api/v1/reset-password?token=";
+    //public static final String ENLACE_RESET_PASSWORD = "http://localhost:4200/reset-password?token=";
 }
