@@ -15,7 +15,8 @@ public class Constants {
     public static final String DATE_FORMATTER_CARPTETAS = "yyyy-MM-dd";
 
     //La contraseña tiene que tener: un numero, sin espacios, minuscula, mayuscula, un caracter epecial, y minimo 8 caracteres
-    public static final String PASSWORD_REGEX = "/^(?=.*\\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?~`]).{8,}$/";
+    public static final String PASSWORD_REGEX =  "^(?=.*\\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[@#$%^&+=!?.*_-]).{8,}$";
+	// "/^(?=.*\\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?~`]).{8,}$/";
 
     public static final String ENTRADAS_PATH = "../Entradas";
 
@@ -31,7 +32,7 @@ public class Constants {
 
     public static String EMAIL_MENSAJE_VALIDACION_EN = "Please use next link to confirm your email: \n \n";
 
-    public static String ENLACE_VALIDACION = "https://entradascbgranada-api.t-systems.es:8447/cbgranada-api/v1/email?";
+    public static String ENLACE_VALIDACION = "https://entradascbgranada-api.t-systems.es:8447/cbgranada-api/v1/email/";
     //public static String ENLACE_VALIDACION = "http://localhost:4200/email?";
 
     public static final String ENLACE_RESET_PASSWORD = "https://entradascbgranada-api.t-systems.es:8447/cbgranada-api/v1/reset-password?token=";

@@ -178,6 +178,7 @@ public class PasswordResetService {
         try {
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+			helper.setFrom("noreply.pqit.batch@t-systemsIB.es");
             helper.setTo(toEmail);
             helper.setSubject(subject);
             helper.setText(htmlContent, true);

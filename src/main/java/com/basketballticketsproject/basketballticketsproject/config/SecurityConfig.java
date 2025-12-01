@@ -73,6 +73,7 @@ public class SecurityConfig {
                                 "/cbgranada-api/v1/login/**",
                                 "/cbgranada-api/v1/addUser/**",
                                 "/cbgranada-api/v1/confirmacionEmail/**",
+								"/cbgranada-api/v1/email/**",
                                 "/error",
                                 "/cbgranada-api/v1/password-reset/**"
                         ).permitAll()
@@ -89,7 +90,7 @@ public class SecurityConfig {
             @Override
             public void addCorsMappings(@NonNull CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost", "http://localhost:9191", "http://localhost:4200")
+                        .allowedOrigins("http://localhost", "http://localhost:9191", "http://localhost:4200", "https://entradascbgranada.t-systems.es")
                         .allowedMethods(
                                 HttpMethod.GET.name(),
                                 HttpMethod.POST.name(),

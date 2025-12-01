@@ -43,6 +43,7 @@ public class SchedulerUtils {
                     .collect(Collectors.joining(""));
         }
         for (Usuario usuario : usuarios) {
+			email.setFrom("noreply.pqit.batch@t-systemsIB.es");
             email.setTo(usuario.getEmail());
             email.setSubject(EMAIL_ASUNTO);
 

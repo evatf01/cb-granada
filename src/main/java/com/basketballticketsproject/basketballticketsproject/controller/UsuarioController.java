@@ -142,21 +142,21 @@ public class UsuarioController {
     }
 
     // Validacion del correo electronico del usuario
-    @PutMapping("/confirmacionEmail/{email}")
-    public ResponseEntity<Usuario> confirmacionEmail(@PathVariable String email){
+    @GetMapping("/email/{email}")
+    public ResponseEntity<String> confirmacionEmail(@PathVariable String email){
         final Usuario usuario = usuarioService.validarEmail(email);
 
         if (ObjectUtils.isEmpty(usuario)) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(usuario, HttpStatus.OK);
+        return new ResponseEntity<>("OK", HttpStatus.OK);
     }
 
     public void enviarConfirmacionEmail(Usuario usuario) {
 
         SimpleMailMessage email = new SimpleMailMessage();
 
-        email.setFrom("noreply@t-systems.com");
+        email.setFrom("noreply.pqit.batch@t-systemsIB.es");
         email.setTo(usuario.getEmail());
         email.setSubject(ASUNTO_VALIDACION);
         email.setText(EMAIL_MENSAJE_VALIDACION_EN + ENLACE_VALIDACION+usuario.getEmail());
